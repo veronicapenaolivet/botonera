@@ -11,7 +11,8 @@ Sonidos para la oficina. En vivo en https://veronicapenaolivet.com/botonera/
 - ⭐ Favoritos (teclas `1`–`9`) y 🕘 últimos usados, guardados en el navegador
 - Filtros por categoría y por sonidos nuevos
 - 🎲 Sonido al azar (tecla `R`)
-- 🔗 Link directo a cada sonido, por ejemplo `#ofortuna`
+- Compartir: en el celular manda el audio (por ejemplo a WhatsApp); en la compu copia el link directo (`#ofortuna`)
+- Vibración y pulso al tocar un botón
 - Control de volumen y modo oscuro
 
 ## Agregar un sonido
@@ -35,6 +36,18 @@ const FRASES = {
 };
 ```
 
+## Pedidos de audios
+
+El botón **Pedir un audio** abre un formulario que envía los datos a `pedir.php`:
+
+- Manda un mail a `botonera@veronicapenaolivet.com` con el pedido y el audio adjunto (hasta 10 MB; los más grandes quedan solo guardados).
+- Guarda los archivos y un registro `pedidos.csv` en `botonera_pedidos/`, **fuera** de `public_html`.
+- Antispam: campo trampa invisible, tiempo mínimo para completar el formulario y hasta 20 pedidos por hora desde una misma IP.
+
+## Métricas (GA4)
+
+En `index.html`, pegá el ID de medición en `GA_ID` (formato `G-XXXXXXXXXX`). Eventos que se registran: `reproducir_sonido`, `search`, `compartir`, `favorito` y `pedir_audio`.
+
 ## Publicar
 
-Subí `index.html`, `audios/` e `images/` a la carpeta `/botonera/` del sitio.
+Subí `index.html`, `pedir.php`, `audios/` e `images/` a la carpeta `/botonera/` del sitio.

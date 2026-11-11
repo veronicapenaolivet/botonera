@@ -17,8 +17,19 @@
   <meta name="twitter:description" content="Sonidos para la oficina">
   <meta name="twitter:image" content="https://veronicapenaolivet.com/botonera/images/botonera_tw_link.jpg">
 
-  <!-- Analytics: el código UA- viejo ya no registra nada. Si querés métricas,
-       pegá acá el snippet de GA4 (G-XXXXXXX) o de Plausible/GoatCounter. -->
+  <!-- Google Analytics 4: pegá tu ID de medición (G-...) en GA_ID. -->
+  <script>
+    const GA_ID = "G-XXXXXXXXXX";
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    if (/^G-[A-Z0-9]+$/.test(GA_ID) && GA_ID !== "G-XXXXXXXXXX") {
+      const sc = document.createElement("script");
+      sc.async = true; sc.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
+      document.head.appendChild(sc);
+      gtag("js", new Date());
+      gtag("config", GA_ID);
+    }
+  </script>
 
   <!-- Estética del sitio (plantilla Strata) -->
   <link rel="stylesheet" href="../assets/css/main.css">
@@ -55,6 +66,12 @@
       border: 0; background: none; color: var(--text); cursor: pointer; font-size: 1em; padding: 0.25em;
     }
     .bt-help:hover { color: var(--accent); }
+    .bt-head .acciones { display: flex; align-items: center; gap: 0.6em; }
+    .bt-pedir {
+      border: solid 2px var(--accent); background: transparent; color: var(--accent); border-radius: var(--radius);
+      padding: 0.25em 0.9em; cursor: pointer; font-size: 0.9em; white-space: nowrap; transition: background-color .2s, color .2s;
+    }
+    .bt-pedir:hover { background: var(--accent); color: #fff; }
 
     /* Buscador + filtros */
     .bt-toolbar { position: sticky; top: 0; z-index: 5; background: #fff; padding: 0.75em 0 0.5em; margin-bottom: 0.5em; }
@@ -94,6 +111,8 @@
     .card .prog { position: absolute; inset: 0; background: var(--accent-soft); transform-origin: left; transform: scaleX(var(--p)); pointer-events: none; }
     .card.playing { border-color: var(--accent); }
     .card.flash { animation: flash 1.2s ease 2; }
+    .card.pulse { animation: pulse .28s ease; }
+    @keyframes pulse { 35% { transform: scale(.95); } 100% { transform: scale(1); } }
     @keyframes flash { 50% { box-shadow: 0 0 0 4px var(--accent-soft); border-color: var(--accent); } }
 
     .play {
@@ -164,7 +183,29 @@
     .bt-dialog td { padding: 0.45em 0; border-bottom: solid 1px var(--border); }
     .bt-dialog td:first-child { width: 7em; }
     .bt-dialog p { margin: 1em 0 0; font-size: 0.9em; }
-    .bt-dialog .button { margin-top: 1.2em; width: 100%; }
+    .bt-dialog .button { margin-top: 1.2em; width: 100%; font-family: inherit; font-size: 1em; }
+
+    /* Formulario "Pedir un audio" */
+    .bt-form { max-width: 30em; }
+    .bt-form .hint { margin: -0.4em 0 1em; }
+    .bt-form label { display: block; color: var(--heading); font-size: 0.95em; margin: 0.9em 0 0.3em; }
+    .bt-form * { box-sizing: border-box; }
+    .bt-form input:not([type=file]), .bt-form textarea {
+      appearance: none; width: 100%; background: var(--field); border: solid 2px transparent; border-radius: var(--radius);
+      color: var(--heading); font: inherit; padding: 0.55em 0.75em; outline: 0; height: auto; line-height: 1.4;
+    }
+    .bt-form textarea { resize: vertical; min-height: 4.5em; }
+    .bt-form input:focus, .bt-form textarea:focus { border-color: var(--accent); }
+    .bt-form input[type=file] { font: inherit; font-size: 0.9em; color: var(--text); max-width: 100%; }
+    .bt-form small { display: block; color: #b2b2b2; font-size: 0.85em; margin-top: 0.2em; }
+    .bt-form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    .bt-form .form-msg { min-height: 1.4em; margin: 0.8em 0 0; font-size: 0.95em; }
+    .bt-form .form-msg.error { color: var(--stop); }
+    .bt-form .form-actions { display: flex; gap: 0.6em; }
+    .bt-form .form-actions .button { margin-top: 0.6em; min-width: 0; flex: 1; }
+    .bt-form .gracias { text-align: center; padding: 1em 0 0.2em; }
+    .bt-form .gracias .fa { font-size: 2.2em; color: var(--accent); }
+    .bt-form .gracias h2 { margin: 0.5em 0 0.3em; }
     .toast {
       position: fixed; left: 50%; bottom: 5.5em; transform: translate(-50%, 20px); opacity: 0; z-index: 20;
       background: #1f1815; color: #fff; padding: 0.6em 1.1em; border-radius: var(--radius); font-size: 0.75em;
@@ -190,7 +231,10 @@
     <section class="bt">
       <header class="major bt-head">
         <h2>La botonera</h2>
-        <button class="bt-help" id="helpBtn" title="Atajos de teclado (?)" aria-label="Atajos de teclado"><span class="fa fa-keyboard"></span></button>
+        <div class="acciones">
+          <button class="bt-pedir" id="pedirBtn"><span class="fa fa-plus"></span>&nbsp; Pedir un audio</button>
+          <button class="bt-help" id="helpBtn" title="Atajos de teclado (?)" aria-label="Atajos de teclado"><span class="fa fa-keyboard"></span></button>
+        </div>
       </header>
 
       <div class="bt-toolbar">
@@ -251,8 +295,38 @@
       <tr><td><kbd>S</kbd></td><td>Superponer sí / no</td></tr>
       <tr><td><kbd>?</kbd></td><td>Esta ayuda</td></tr>
     </table>
-    <p>Tip: con <span class="fa fa-link"></span> copiás el link directo a un sonido para mandarlo por WhatsApp o Slack.</p>
+    <p>Tip: con <span class="fa fa-share-alt"></span> compartís el sonido. En el celular manda el audio mismo (por ejemplo a WhatsApp); en la compu copia el link directo.</p>
     <button class="button primary" id="helpClose">Listo</button>
+  </dialog>
+
+  <dialog class="bt-dialog bt-form" id="pedir">
+    <form id="pedirForm" novalidate>
+      <div id="pedirCampos">
+        <h2>Pedir un audio</h2>
+        <p class="hint">Contanos qué audio querés y lo sumamos a la botonera.</p>
+        <label for="f-que">¿Qué audio querés? *</label>
+        <textarea id="f-que" name="que" rows="3" maxlength="500" required placeholder="Ej: el de Silvia diciendo que va con la peor de las ondas"></textarea>
+        <label for="f-link">Link (opcional)</label>
+        <input id="f-link" name="link" type="text" inputmode="url" maxlength="500" placeholder="YouTube, TikTok, Instagram… y el minuto">
+        <label for="f-archivo">O subí el archivo (opcional)</label>
+        <input id="f-archivo" name="archivo" type="file" accept="audio/*,video/*,.opus,.ogg,.oga,.m4a,.amr,.3gp">
+        <small>Nota de voz, mp3 o video corto. Máximo 15 MB.</small>
+        <label for="f-nombre">Tu nombre (opcional)</label>
+        <input id="f-nombre" name="nombre" type="text" maxlength="80" autocomplete="given-name" placeholder="Para avisarte cuando esté">
+        <div class="hp" aria-hidden="true"><label>No completar <input name="web" tabindex="-1" autocomplete="off"></label></div>
+        <p class="form-msg" id="pedirMsg" role="status" aria-live="polite"></p>
+        <div class="form-actions">
+          <button type="button" class="button" id="pedirCancel">Cancelar</button>
+          <button type="submit" class="button primary" id="pedirSend">Enviar pedido</button>
+        </div>
+      </div>
+      <div class="gracias" id="pedirOk" hidden>
+        <span class="fa fa-check-circle"></span>
+        <h2>¡Pedido enviado!</h2>
+        <p>Gracias 🙌🏻 Cuando esté en la botonera va a aparecer con la etiqueta NUEVO.</p>
+        <button type="button" class="button primary" id="pedirListo">Listo</button>
+      </div>
+    </form>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -415,7 +489,7 @@ function cardHTML(s, keyNum) {
     </button>
     <div class="tools">
       <button class="tool fav${fav ? " on" : ""}" data-act="fav" aria-pressed="${fav}" title="${fav ? "Quitar de" : "Agregar a"} favoritos" aria-label="Favorito"><span class="fa fa-star"></span></button>
-      <button class="tool" data-act="link" title="Copiar link directo" aria-label="Copiar link"><span class="fa fa-link"></span></button>
+      <button class="tool" data-act="share" title="Compartir (en el celu manda el audio por WhatsApp)" aria-label="Compartir"><span class="fa fa-share-alt"></span></button>
     </div>
   </div>`;
 }
@@ -486,6 +560,9 @@ function play(slug) {
   a.currentTime = 0;
   playing.add(slug);
   refreshCard(slug); refreshBar();
+  if (navigator.vibrate) navigator.vibrate(12);
+  cardsFor(slug).forEach(c => { c.classList.remove("pulse"); void c.offsetWidth; c.classList.add("pulse"); });
+  track("reproducir_sonido", { sonido: s.name });
   a.play().catch(err => { stop(slug); if (err.name !== "AbortError") toast("No se pudo reproducir 😕"); });
   recents = [slug, ...recents.filter(x => x !== slug)].slice(0, 8);
   store.set("recents", recents);
@@ -519,12 +596,45 @@ function toggleFav(slug) {
   store.set("favs", favs);
   render();
   toast(favs.includes(slug) ? `⭐ ${bySlug[slug].name} agregado a favoritos` : "Quitado de favoritos");
+  if (favs.includes(slug)) track("favorito", { sonido: bySlug[slug].name });
 }
 async function copyLink(slug) {
   const url = location.origin + location.pathname + "#" + slug;
   try { await navigator.clipboard.writeText(url); toast("🔗 Link copiado"); }
   catch { prompt("Copiá este link:", url); }
 }
+
+// Compartir: en el celular manda el mp3 (WhatsApp, Telegram…); si no se puede, copia el link.
+const archivos = new Map();
+const puedeCompartirArchivos = (() => {
+  try { return !!navigator.canShare && navigator.canShare({ files: [new File([""], "x.mp3", { type: "audio/mpeg" })] }); }
+  catch { return false; }
+})();
+async function share(slug) {
+  const s = bySlug[slug];
+  if (puedeCompartirArchivos) {
+    try {
+      let file = archivos.get(slug);
+      if (!file) {
+        const blob = await (await fetch(BASE + s.file + ".mp3")).blob();
+        file = new File([blob], s.name.replace(/[^\p{L}\p{N} ]+/gu, "").trim().replace(/\s+/g, "-") + ".mp3", { type: "audio/mpeg" });
+        archivos.set(slug, file);
+      }
+      await navigator.share({ files: [file] });
+      track("compartir", { sonido: s.name, metodo: "audio" });
+      return;
+    } catch (e) {
+      if (e.name === "AbortError") return;                       // cerró el menú de compartir
+      if (e.name === "NotAllowedError" && archivos.has(slug)) {   // tardó en bajar: el navegador pide otro toque
+        toast("Listo, tocá compartir de nuevo"); return;
+      }
+    }
+  }
+  await copyLink(slug);
+  track("compartir", { sonido: s.name, metodo: "link" });
+}
+
+function track(evento, datos) { try { gtag("event", evento, datos || {}); } catch {} }
 function random() {
   const list = visible().length ? visible() : sounds;
   const s = list[Math.floor(Math.random() * list.length)];
@@ -548,13 +658,18 @@ document.addEventListener("click", e => {
   const btn = e.target.closest("[data-act]");
   if (btn) {
     const slug = btn.closest(".card").dataset.slug;
-    ({ play, fav: toggleFav, link: copyLink })[btn.dataset.act](slug);
+    ({ play, fav: toggleFav, share })[btn.dataset.act](slug);
     return;
   }
   const chip = e.target.closest("[data-filter]");
   if (chip) { filter = chip.dataset.filter; render(); }
 });
-$("q").addEventListener("input", e => { query = e.target.value; render(); });
+let buscarT;
+$("q").addEventListener("input", e => {
+  query = e.target.value; render();
+  clearTimeout(buscarT);
+  if (query.trim().length > 1) buscarT = setTimeout(() => track("search", { search_term: query.trim().toLowerCase() }), 1500);
+});
 $("q").addEventListener("keydown", e => {
   if (e.key === "Enter") { const s = visible()[0]; if (s) play(s.slug); }
 });
@@ -566,16 +681,54 @@ $("vol").oninput = e => { volume = +e.target.value; store.set("volume", volume);
 $("helpBtn").onclick = () => $("help").showModal();
 $("helpClose").onclick = () => $("help").close();
 
+/* ---------- pedir un audio ---------- */
+const PEDIR_URL = "pedir.php";
+const MAX_MB = 15;
+let pedirAbierto = 0;
+function abrirPedir() {
+  $("pedirCampos").hidden = false; $("pedirOk").hidden = true;
+  $("pedirMsg").textContent = ""; $("pedirMsg").className = "form-msg";
+  $("pedir").showModal(); $("f-que").focus();
+  pedirAbierto = Date.now();
+}
+function errorPedir(msg) { $("pedirMsg").textContent = msg; $("pedirMsg").className = "form-msg error"; }
+$("pedirBtn").onclick = abrirPedir;
+$("pedirCancel").onclick = () => $("pedir").close();
+$("pedirListo").onclick = () => $("pedir").close();
+$("pedirForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, archivo = $("f-archivo").files[0];
+  if (!$("f-que").value.trim()) { errorPedir("Contanos qué audio querés."); $("f-que").focus(); return; }
+  if (archivo && archivo.size > MAX_MB * 1048576) { errorPedir(`El archivo pesa más de ${MAX_MB} MB.`); return; }
+  const fd = new FormData(f);
+  fd.append("dt", Date.now() - pedirAbierto);
+  $("pedirSend").disabled = true; $("pedirSend").textContent = archivo ? "Subiendo…" : "Enviando…";
+  $("pedirMsg").textContent = ""; $("pedirMsg").className = "form-msg";
+  try {
+    const r = await fetch(PEDIR_URL, { method: "POST", body: fd });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok || !data.ok) throw new Error(data.error || "No se pudo enviar. Probá de nuevo.");
+    f.reset();
+    $("pedirCampos").hidden = true; $("pedirOk").hidden = false; $("pedirListo").focus();
+    track("pedir_audio", { con_archivo: !!archivo, con_link: !!fd.get("link") });
+  } catch (err) {
+    errorPedir(err.message === "Failed to fetch" ? "No hay conexión. Probá de nuevo." : err.message);
+  } finally {
+    $("pedirSend").disabled = false; $("pedirSend").textContent = "Enviar pedido";
+  }
+});
+
 document.addEventListener("keydown", e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
-  const typing = e.target.matches("input[type=search], input[type=text]");
+  const typing = !!e.target.closest("input, textarea, select");
+  const dialogoAbierto = $("help").open || $("pedir").open;
   if (e.key === "Escape") {
-    if ($("help").open) return;
+    if (dialogoAbierto) return;
     stopAll();
     if (typing && query) { $("q").value = ""; query = ""; render(); }
     return;
   }
-  if (typing) return;
+  if (typing || dialogoAbierto) return;
   if (e.key === "/") { e.preventDefault(); $("q").focus(); $("q").select(); }
   else if (e.key === "?") $("help").showModal();
   else if (e.key === "r" || e.key === "R") random();
