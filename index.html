@@ -273,11 +273,11 @@
    El orden de la lista es el orden en pantalla (los más nuevos arriba).
    ===================================================================== */
 const SONIDOS = [
-  ["ofortuna", "O Fortuna", "🎼", "musica", true],
-  ["xfiles", "X Files", "👽", "musica", true],
-  ["nadaquemeimportemenos", "Nada que me importe menos", "🤷", "frases", true],
-  ["mecargas", "Me cargas?", "🤨", "frases", true],
-  ["300", "300", "🛡️", "frases", true],
+  ["ofortuna", "O Fortuna", "🎼", "musica"],
+  ["xfiles", "X Files", "👽", "musica"],
+  ["nadaquemeimportemenos", "Nada que me importe menos", "🤷", "frases"],
+  ["mecargas", "Me cargas?", "🤨", "frases"],
+  ["300", "300", "🛡️", "frases"],
   ["latigo", "Látigo", "💥", "efectos"],
   ["apagadoxp", "Apagado XP", "🖥️", "efectos"],
   ["ponelevoluntad", "Ponele voluntad", "💪", "frases"],
@@ -397,7 +397,8 @@ function visible() {
 function renderChips() {
   const count = f => f === "todos" ? sounds.length : f === "favs" ? favs.length
     : f === "nuevos" ? sounds.filter(s => s.nuevo).length : sounds.filter(s => s.cat === f).length;
-  const opts = [["todos", "Todos"], ["favs", "Favoritos"], ["nuevos", "Nuevos"], ...Object.entries(CATEGORIAS)];
+  const opts = [["todos", "Todos"], ["favs", "Favoritos"], ["nuevos", "Nuevos"], ...Object.entries(CATEGORIAS)]
+    .filter(([f]) => f !== "nuevos" || count(f) > 0);  // sin sonidos nuevos, no se muestra el filtro
   $("chips").innerHTML = opts.map(([f, l]) =>
     `<button class="chip" data-filter="${f}" aria-pressed="${filter === f}">${l}<span class="n">${count(f)}</span></button>`).join("");
 }
