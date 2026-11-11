@@ -340,6 +340,15 @@ const SONIDOS = [
   ["massa", "Massa...", "🗳️", "frases"],
 ];
 
+/* =====================================================================
+   FRASES OCULTAS — lo que dice cada audio. No se ve en el botón, pero el
+   buscador lo encuentra (ej. buscar "silvia" muestra "La peor de las ondas").
+   "archivo (sin .mp3)": "lo que dice el audio, palabras clave, apodos...",
+   ===================================================================== */
+const FRASES = {
+  lapeordelasondas: "mirá silvia, voy a ir pero con la peor de las ondas",
+};
+
 const DIAS_NUEVO = 5;
 const CATEGORIAS = { frases: "Frases", musica: "Música", efectos: "Efectos" };
 
@@ -356,7 +365,7 @@ function esNuevo(fecha) {
 }
 const sounds = SONIDOS.map(([file, name, emoji, cat, fecha]) => ({
   file, name, emoji, cat, nuevo: esNuevo(fecha), slug: file.replace(/_/g, "-"),
-  search: norm(name + " " + file + " " + (CATEGORIAS[cat] || "")),
+  search: norm([name, file, CATEGORIAS[cat], FRASES[file]].join(" ")),
 }));
 const bySlug = Object.fromEntries(sounds.map(s => [s.slug, s]));
 

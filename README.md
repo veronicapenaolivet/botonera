@@ -25,6 +25,16 @@ Sonidos para la oficina. En vivo en https://veronicapenaolivet.com/botonera/
 
    Los campos son: archivo sin `.mp3`, nombre del botón, emoji, categoría (`frases`, `musica` o `efectos`) y, opcionalmente, la fecha en que lo agregás. Con fecha, el botón muestra la etiqueta NUEVO durante 5 días (`DIAS_NUEVO`) y después se va sola.
 
+## Frases ocultas para el buscador
+
+En `index.html`, el objeto `FRASES` guarda lo que dice cada audio. No se muestra en el botón, pero el buscador lo usa: por ejemplo, buscar "silvia" encuentra "La peor de las ondas".
+
+```js
+const FRASES = {
+  lapeordelasondas: "mirá silvia, voy a ir pero con la peor de las ondas",
+};
+```
+
 ## Publicar
 
 Subí `index.html`, `audios/` e `images/` a la carpeta `/botonera/` del sitio.
