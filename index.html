@@ -1,11 +1,10 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="es">
 <head>
+  <title>La botonera</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>La botonera</title>
   <meta name="description" content="Sonidos para la oficina">
-  <meta name="theme-color" content="#7c3aed">
   <link rel="icon" href="images/favicon.png">
 
   <meta property="og:type" content="website">
@@ -21,270 +20,250 @@
   <!-- Analytics: el código UA- viejo ya no registra nada. Si querés métricas,
        pegá acá el snippet de GA4 (G-XXXXXXX) o de Plausible/GoatCounter. -->
 
+  <!-- Estética del sitio (plantilla Strata) -->
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/fontawesome.css">
+  <link rel="stylesheet" href="../assets/css/brands.css">
+  <link rel="stylesheet" href="../assets/css/solid.css">
+
   <style>
+    /* Colores tomados de main.css del sitio */
     :root {
-      --bg: #f6f4fb;
-      --surface: #ffffff;
-      --surface-2: #efeaf8;
-      --text: #1d1730;
-      --muted: #6b6582;
-      --border: #e2dcef;
-      --accent: #7c3aed;
-      --accent-text: #ffffff;
-      --danger: #e11d48;
-      --star: #f59e0b;
-      --shadow: 0 1px 2px rgba(29,23,48,.06), 0 4px 14px rgba(29,23,48,.06);
-      --c-frases: #7c3aed;
-      --c-musica: #0891b2;
-      --c-efectos: #ea580c;
-      --radius: 16px;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) {
-        --bg: #120f1c; --surface: #1c1829; --surface-2: #262036; --text: #f1eefa;
-        --muted: #a39cba; --border: #2f2843; --accent: #a78bfa; --accent-text: #120f1c;
-        --danger: #fb7185; --star: #fbbf24; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
-        --c-frases: #a78bfa; --c-musica: #22d3ee; --c-efectos: #fb923c;
-      }
-    }
-    :root[data-theme="dark"] {
-      --bg: #120f1c; --surface: #1c1829; --surface-2: #262036; --text: #f1eefa;
-      --muted: #a39cba; --border: #2f2843; --accent: #a78bfa; --accent-text: #120f1c;
-      --danger: #fb7185; --star: #fbbf24; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
-      --c-frases: #a78bfa; --c-musica: #22d3ee; --c-efectos: #fb923c;
+      --accent: #49bf9d;
+      --accent-hover: #5cc6a7;
+      --accent-soft: rgba(73, 191, 157, 0.12);
+      --heading: #787878;
+      --text: #a2a2a2;
+      --border: #efefef;
+      --field: #f7f7f7;
+      --stop: #e06c6c;
+      --star: #f2b33d;
+      --radius: 0.35em;
     }
 
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
-    body {
-      margin: 0; background: var(--bg); color: var(--text);
-      font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      padding-bottom: 96px;
+    .bt { font-size: 0.8em; line-height: 1.5; }
+    :where(.bt) button { font-family: inherit; color: inherit; }
+    .bt kbd {
+      font: 0.8em ui-monospace, monospace; padding: 1px 6px; border-radius: var(--radius);
+      border: solid 1px #e2e2e2; background: var(--field); color: var(--heading);
     }
-    button { font: inherit; color: inherit; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
 
-    /* Header */
-    header { padding: 28px 0 12px; }
-    .hello { display: flex; align-items: center; gap: 14px; }
-    .hello img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
-    .hello h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2.1rem); letter-spacing: -.02em; }
-    .hello p { margin: 2px 0 0; color: var(--muted); }
-    .hello .spacer { flex: 1; }
-    .icon-btn {
-      border: 1px solid var(--border); background: var(--surface); border-radius: 12px;
-      width: 42px; height: 42px; display: grid; place-items: center; cursor: pointer; font-size: 18px;
+    /* Título como el "Portfolio" de la home */
+    .bt-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1em; }
+    .bt-head h2 { margin: 0; }
+    .bt-help {
+      border: 0; background: none; color: var(--text); cursor: pointer; font-size: 1em; padding: 0.25em;
     }
-    .icon-btn:hover { background: var(--surface-2); }
+    .bt-help:hover { color: var(--accent); }
 
-    /* Toolbar */
-    .toolbar {
-      position: sticky; top: 0; z-index: 5; background: var(--bg);
-      padding: 12px 0 10px; border-bottom: 1px solid transparent;
+    /* Buscador + filtros */
+    .bt-toolbar { position: sticky; top: 0; z-index: 5; background: #fff; padding: 0.75em 0 0.5em; margin-bottom: 0.5em; }
+    .bt-search { position: relative; }
+    .bt-search input {
+      appearance: none; width: 100%; height: 2.9em; padding: 0 3em 0 2.6em;
+      background: var(--field); border: solid 2px transparent; border-radius: var(--radius);
+      color: var(--heading); font: inherit; outline: 0;
     }
-    .toolbar.stuck { border-bottom-color: var(--border); }
-    .search { position: relative; }
-    .search input {
-      width: 100%; padding: 14px 44px 14px 46px; font-size: 17px;
-      border-radius: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--text);
-      box-shadow: var(--shadow); outline: none;
-    }
-    .search input:focus { border-color: var(--accent); }
-    .search .lupa { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); opacity: .6; }
-    .search kbd { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); }
-    kbd {
-      font: 12px ui-monospace, monospace; padding: 2px 6px; border-radius: 6px;
-      border: 1px solid var(--border); background: var(--surface-2); color: var(--muted);
-    }
-    .chips { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0 2px; scrollbar-width: none; }
-    .chips::-webkit-scrollbar { display: none; }
+    .bt-search input:focus { border-color: var(--accent); }
+    .bt-search .fa-search { position: absolute; left: 0.95em; top: 50%; transform: translateY(-50%); color: #b2b2b2; }
+    .bt-search kbd { position: absolute; right: 0.8em; top: 50%; transform: translateY(-50%); }
+    .bt-chips { display: flex; gap: 0.5em; overflow-x: auto; padding: 0.7em 0 0.1em; scrollbar-width: none; }
+    .bt-chips::-webkit-scrollbar { display: none; }
     .chip {
-      flex: none; border: 1px solid var(--border); background: var(--surface); border-radius: 999px;
-      padding: 7px 14px; cursor: pointer; font-size: 14px; white-space: nowrap;
+      flex: none; background: transparent; border: solid 2px var(--border); border-radius: var(--radius);
+      padding: 0.3em 0.9em; cursor: pointer; color: var(--heading); white-space: nowrap; font-size: 0.9em;
+      transition: border-color .2s, color .2s, background-color .2s;
     }
-    .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-    .chip .n { opacity: .65; margin-left: 4px; font-size: 12px; }
+    .chip:hover { border-color: var(--accent); color: var(--accent); }
+    .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .chip .n { opacity: .7; margin-left: 0.3em; font-size: 0.85em; }
 
-    /* Sections */
-    h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 18px 0 10px; font-weight: 600; }
-    .empty { text-align: center; color: var(--muted); padding: 40px 0; }
+    .bt h3 { font-size: 0.8em; text-transform: uppercase; letter-spacing: .1em; color: #b2b2b2; margin: 1.4em 0 0.7em; font-weight: 400; }
+    .bt .empty { text-align: center; padding: 2em 0; }
 
-    /* Grid of pads */
-    .grid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    @media (min-width: 600px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    @media (min-width: 860px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-    @media (min-width: 1100px) { .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
-    .recent .grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(150px, 180px); overflow-x: auto; padding-bottom: 4px; }
+    /* Grilla de botones */
+    .grid { display: grid; gap: 0.6em; grid-template-columns: repeat(auto-fill, minmax(12em, 1fr)); }
+    .recent .grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(10.5em, 12em); overflow-x: auto; padding-bottom: 0.3em; }
+    @media screen and (max-width: 480px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
     .card {
-      --cat: var(--accent); --p: 0;
-      position: relative; background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
-      transition: transform .08s ease, border-color .15s;
+      --p: 0; position: relative; background: #fff; border: solid 2px var(--border); border-radius: var(--radius);
+      overflow: hidden; transition: border-color .2s;
     }
-    .card[data-cat="frases"] { --cat: var(--c-frases); }
-    .card[data-cat="musica"] { --cat: var(--c-musica); }
-    .card[data-cat="efectos"] { --cat: var(--c-efectos); }
-    .card::before { /* category stripe */
-      content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--cat);
-    }
-    .card .prog { /* progress fill */
-      position: absolute; inset: 0; background: var(--cat); opacity: .14;
-      transform-origin: left; transform: scaleX(var(--p)); pointer-events: none;
-    }
-    .card.playing { border-color: var(--cat); }
+    .card:hover { border-color: #d9efe8; }
+    .card .prog { position: absolute; inset: 0; background: var(--accent-soft); transform-origin: left; transform: scaleX(var(--p)); pointer-events: none; }
+    .card.playing { border-color: var(--accent); }
     .card.flash { animation: flash 1.2s ease 2; }
-    @keyframes flash { 50% { box-shadow: 0 0 0 4px var(--cat); } }
+    @keyframes flash { 50% { box-shadow: 0 0 0 4px var(--accent-soft); border-color: var(--accent); } }
 
     .play {
-      position: relative; display: flex; align-items: center; gap: 10px; width: 100%;
-      min-height: 76px; padding: 12px 12px 12px 16px; text-align: left;
-      background: none; border: 0; cursor: pointer;
+      position: relative; display: flex; align-items: center; gap: 0.6em; width: 100%; min-height: 4.2em;
+      padding: 0.6em 1.9em 0.6em 0.8em; text-align: left; background: none; border: 0; cursor: pointer;
     }
-    .play:active { transform: scale(.98); }
-    .play:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--radius); }
-    .emoji { font-size: 26px; line-height: 1; flex: none; }
-    .name { font-weight: 600; line-height: 1.2; overflow-wrap: break-word; padding-right: 26px; }
-    .state { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
-    .card.playing .state { color: var(--cat); }
+    .play:active { background: var(--accent-soft); }
+    .play:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .emoji { font-size: 1.45em; line-height: 1; flex: none; }
+    .name { color: var(--heading); line-height: 1.25; overflow-wrap: break-word; min-width: 0; }
+    .card.playing .name { color: var(--accent); }
+    .state { display: block; font-size: 0.8em; color: #b2b2b2; margin-top: 0.15em; }
+    .card.playing .state { color: var(--accent); }
+    .state kbd { margin-left: 0.3em; font-size: 0.85em; padding: 0 5px; }
 
-    .tools { position: absolute; top: 4px; right: 4px; display: flex; flex-direction: column; gap: 0; }
+    .tools { position: absolute; top: 0.15em; right: 0.15em; display: flex; flex-direction: column; }
     .tool {
-      width: 30px; height: 30px; border: 0; background: none; border-radius: 8px; cursor: pointer;
-      display: grid; place-items: center; font-size: 15px; color: var(--muted); opacity: .55;
+      width: 1.7em; height: 1.7em; border: 0; background: none; border-radius: var(--radius); cursor: pointer;
+      display: grid; place-items: center; font-size: 0.9em; color: #d4d4d4; padding: 0;
     }
-    .tool:hover, .tool:focus-visible { opacity: 1; background: var(--surface-2); }
-    .tool.fav.on { color: var(--star); opacity: 1; }
+    .tool:hover, .tool:focus-visible { color: var(--accent); background: var(--field); }
+    .tool.fav.on { color: var(--star); }
     .badge {
-      position: absolute; left: 12px; top: -1px; font-size: 10px; font-weight: 700; letter-spacing: .06em;
-      background: var(--cat); color: var(--surface); padding: 2px 6px; border-radius: 0 0 6px 6px;
+      position: absolute; left: 0.8em; top: 0; font-size: 0.6em; letter-spacing: .08em;
+      background: var(--accent); color: #fff; padding: 0.1em 0.5em; border-radius: 0 0 var(--radius) var(--radius);
     }
-    .state kbd { margin-left: 4px; font-size: 11px; padding: 0 5px; }
-    .card:has(.badge) .play { padding-top: 18px; }
+    .card:has(.badge) .play { padding-top: 1em; }
 
-    /* Bottom bar */
-    .bar {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
-      background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(10px);
-      border-top: 1px solid var(--border);
+    /* Barra inferior: ocupa sólo la columna de contenido, como #main */
+    #main { padding-bottom: 7em; }
+    .bt-bar {
+      position: fixed; right: 0; bottom: 0; left: 35%; z-index: 10;
+      background: rgba(255,255,255,.95); border-top: solid 2px var(--border);
+      font-size: 0.8em;
     }
-    .bar .wrap { display: flex; align-items: center; gap: 12px; padding-top: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+    @media screen and (max-width: 1280px) { .bt-bar { left: 30%; } }
+    @media screen and (max-width: 980px) { .bt-bar { left: 0; } }
+    .bt-bar .in { display: flex; align-items: center; gap: 0.8em; padding: 0.7em 1.5em calc(0.7em + env(safe-area-inset-bottom)); max-width: 54em; }
     .stop {
-      border: 0; background: var(--danger); color: #fff; font-weight: 700; border-radius: 12px;
-      padding: 12px 18px; cursor: pointer; display: flex; align-items: center; gap: 8px; flex: none;
+      border: 0; background: var(--stop); color: #fff !important; border-radius: var(--radius);
+      padding: 0 1.3em; height: 2.6em; cursor: pointer; flex: none; letter-spacing: .05em; transition: opacity .2s;
     }
     .stop:disabled { opacity: .35; cursor: default; }
-    .now { flex: 1; min-width: 0; font-size: 14px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .now b { color: var(--text); }
-    .ctrl { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); flex: none; }
-    .ctrl input[type=range] { width: 90px; accent-color: var(--accent); }
-    .toggle { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 8px 10px; cursor: pointer; font-size: 13px; }
-    .toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
-    .rand { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 8px 12px; cursor: pointer; font-size: 18px; flex: none; }
-    @media (max-width: 640px) {
-      .ctrl .lbl, .hide-sm { display: none; }
-      .ctrl input[type=range] { width: 70px; }
-      .now { display: none; }
-      .bar .wrap { justify-content: space-between; }
+    .now { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #b2b2b2; }
+    .now b { color: var(--heading); font-weight: 400; }
+    .bar-btn {
+      border: solid 2px var(--border); background: #fff; border-radius: var(--radius); height: 2.6em; padding: 0 0.9em;
+      cursor: pointer; color: var(--heading); flex: none; transition: border-color .2s, color .2s;
+    }
+    .bar-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .bar-btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .vol { display: flex; align-items: center; gap: 0.5em; color: #b2b2b2; flex: none; margin: 0; font-size: 1em; }
+    .vol input { appearance: auto; -webkit-appearance: auto; display: inline-block; width: 6em; height: auto; padding: 0; margin: 0; background: none; border: 0; accent-color: var(--accent); }
+    @media screen and (max-width: 736px) {
+      .bt-bar .in { padding-left: 1em; padding-right: 1em; justify-content: space-between; }
+      .now, .hide-sm { display: none; }
+      .vol input { width: 4.5em; }
     }
 
-    /* Help dialog + toast */
-    dialog {
-      border: 1px solid var(--border); border-radius: 18px; background: var(--surface); color: var(--text);
-      max-width: 420px; width: calc(100% - 32px); padding: 22px; box-shadow: var(--shadow);
+    /* Ayuda + aviso */
+    .bt-dialog {
+      border: solid 2px var(--border); border-radius: var(--radius); color: var(--text); background: #fff;
+      max-width: 24em; width: calc(100% - 2em); padding: 1.5em; font-size: 0.8em;
     }
-    dialog::backdrop { background: rgba(0,0,0,.4); }
-    dialog h3 { margin: 0 0 12px; }
-    dialog table { width: 100%; border-collapse: collapse; font-size: 15px; }
-    dialog td { padding: 7px 0; border-bottom: 1px solid var(--border); }
-    dialog td:first-child { width: 110px; }
-    dialog .close { margin-top: 16px; width: 100%; padding: 10px; border-radius: 10px; border: 0; background: var(--accent); color: var(--accent-text); font-weight: 600; cursor: pointer; }
+    .bt-dialog::backdrop { background: rgba(31, 24, 21, .45); }
+    .bt-dialog h2 { margin: 0 0 0.8em; font-size: 1.2em; }
+    .bt-dialog table { margin: 0; font-size: 1em; }
+    .bt-dialog td { padding: 0.45em 0; border-bottom: solid 1px var(--border); }
+    .bt-dialog td:first-child { width: 7em; }
+    .bt-dialog p { margin: 1em 0 0; font-size: 0.9em; }
+    .bt-dialog .button { margin-top: 1.2em; width: 100%; }
     .toast {
-      position: fixed; left: 50%; bottom: 90px; transform: translate(-50%, 20px); opacity: 0; z-index: 20;
-      background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px;
-      transition: .2s; pointer-events: none; max-width: calc(100% - 32px); text-align: center;
+      position: fixed; left: 50%; bottom: 5.5em; transform: translate(-50%, 20px); opacity: 0; z-index: 20;
+      background: #1f1815; color: #fff; padding: 0.6em 1.1em; border-radius: var(--radius); font-size: 0.75em;
+      transition: .2s; pointer-events: none; max-width: calc(100% - 2em); text-align: center;
     }
+    @media screen and (min-width: 981px) { .toast { left: 67.5%; } }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
-
-    footer { text-align: center; padding: 30px 0 10px; color: var(--muted); font-size: 14px; }
-    footer a { color: var(--muted); margin: 0 8px; }
   </style>
 </head>
-<body>
+<body class="is-preload">
 
-<header class="wrap">
-  <div class="hello">
-    <a href="https://veronicapenaolivet.com"><img src="../images/avatar.jpg" alt="Verónica" onerror="this.src='https://veronicapenaolivet.com/images/avatar.jpg';this.onerror=null"></a>
-    <div>
-      <h1>La botonera</h1>
-      <p>Hola, soy <strong>Verónica</strong>. La hice para lxs pibxs de la oficina.</p>
+  <!-- Header (igual que el resto del sitio) -->
+  <header id="header">
+    <div class="inner">
+      <a href="https://veronicapenaolivet.com" class="image avatar"><img src="../images/avatar.jpg" alt="avatar"></a>
+      <h1>Hola, soy <strong>Verónica</strong></h1><br>
+      <h1>Hice esta botonera para lxs pibxs de la oficina.</h1>
     </div>
-    <div class="spacer"></div>
-    <button class="icon-btn" id="helpBtn" title="Atajos de teclado (?)" aria-label="Atajos de teclado">⌨️</button>
-    <button class="icon-btn" id="themeBtn" title="Cambiar tema" aria-label="Cambiar tema">🌓</button>
-  </div>
-</header>
+  </header>
 
-<div class="toolbar" id="toolbar">
-  <div class="wrap">
-    <div class="search">
-      <span class="lupa">🔎</span>
-      <input id="q" type="search" placeholder="Buscar sonido…" autocomplete="off" aria-label="Buscar sonido">
-      <kbd class="hide-sm">/</kbd>
+  <!-- Main -->
+  <div id="main">
+    <section class="bt">
+      <header class="major bt-head">
+        <h2>La botonera</h2>
+        <button class="bt-help" id="helpBtn" title="Atajos de teclado (?)" aria-label="Atajos de teclado"><span class="fa fa-keyboard"></span></button>
+      </header>
+
+      <div class="bt-toolbar">
+        <div class="bt-search">
+          <span class="fa fa-search" aria-hidden="true"></span>
+          <input id="q" type="search" placeholder="Buscar sonido…" autocomplete="off" aria-label="Buscar sonido">
+          <kbd class="hide-sm">/</kbd>
+        </div>
+        <div class="bt-chips" id="chips" role="toolbar" aria-label="Filtros"></div>
+      </div>
+
+      <div class="recent" id="recentSec" hidden>
+        <h3>Últimos que usaste</h3>
+        <div class="grid" id="recentGrid"></div>
+      </div>
+      <div id="favSec" hidden>
+        <h3>Favoritos · teclas 1 a 9</h3>
+        <div class="grid" id="favGrid"></div>
+      </div>
+      <div>
+        <h3 id="allTitle">Todos</h3>
+        <div class="grid" id="grid"></div>
+        <p class="empty" id="empty" hidden>No encontré nada 🦗 Probá con otra palabra.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer (igual que el resto del sitio) -->
+  <footer id="footer">
+    <div class="inner">
+      <ul class="icons">
+        <li><a href="https://www.linkedin.com/in/veronicapenaolivet/" class="icon brands fa-linkedin" target="_blank" rel="noopener"><span class="label">LinkedIn</span></a></li>
+        <li><a href="https://twitter.com/veropenaolivet" class="icon brands fa-twitter" target="_blank" rel="noopener"><span class="label">Twitter</span></a></li>
+        <li><a href="https://wa.me/59899985461" class="icon brands fa-whatsapp" target="_blank" rel="noopener"><span class="label">WhatsApp</span></a></li>
+        <li><a href="https://t.me/mdnss" class="icon brands fa-telegram" target="_blank" rel="noopener"><span class="label">Telegram</span></a></li>
+      </ul>
     </div>
-    <div class="chips" id="chips" role="toolbar" aria-label="Filtros"></div>
+  </footer>
+
+  <div class="bt-bar bt">
+    <div class="in">
+      <button class="stop" id="stopBtn" disabled title="Cortar todo (Esc)"><span class="fa fa-stop"></span>&nbsp; STOP</button>
+      <div class="now" id="now">Nada sonando</div>
+      <button class="bar-btn" id="randBtn" title="Sonido al azar (R)" aria-label="Sonido al azar"><span class="fa fa-dice"></span></button>
+      <button class="bar-btn" id="overlapBtn" aria-pressed="false" title="Permitir que suenen varios a la vez (S)"><span class="fa fa-layer-group"></span><span class="hide-sm">&nbsp; Superponer</span></button>
+      <label class="vol"><span class="fa fa-volume-up"></span><input type="range" id="vol" min="0" max="1" step="0.05" value="1" aria-label="Volumen"></label>
+    </div>
   </div>
-</div>
 
-<main class="wrap">
-  <section class="recent" id="recentSec" hidden>
-    <h2>🕘 Últimos que usaste</h2>
-    <div class="grid" id="recentGrid"></div>
-  </section>
-  <section id="favSec" hidden>
-    <h2>⭐ Favoritos <span style="text-transform:none;letter-spacing:0">— teclas 1 a 9</span></h2>
-    <div class="grid" id="favGrid"></div>
-  </section>
-  <section>
-    <h2 id="allTitle">Todos</h2>
-    <div class="grid" id="grid"></div>
-    <p class="empty" id="empty" hidden>No encontré nada 🦗 Probá con otra palabra.</p>
-  </section>
-</main>
+  <dialog class="bt-dialog" id="help">
+    <h2>Atajos de teclado</h2>
+    <table>
+      <tr><td><kbd>/</kbd></td><td>Ir al buscador</td></tr>
+      <tr><td><kbd>Enter</kbd></td><td>Reproducir el primer resultado</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Cortar todo (y limpiar búsqueda)</td></tr>
+      <tr><td><kbd>1</kbd>–<kbd>9</kbd></td><td>Tus favoritos, en orden</td></tr>
+      <tr><td><kbd>R</kbd></td><td>Sonido al azar</td></tr>
+      <tr><td><kbd>S</kbd></td><td>Superponer sí / no</td></tr>
+      <tr><td><kbd>?</kbd></td><td>Esta ayuda</td></tr>
+    </table>
+    <p>Tip: con <span class="fa fa-link"></span> copiás el link directo a un sonido para mandarlo por WhatsApp o Slack.</p>
+    <button class="button primary" id="helpClose">Listo</button>
+  </dialog>
 
-<footer class="wrap">
-  <a href="https://linkedin.com/in/verónica-peña-olivet" target="_blank" rel="noopener">LinkedIn</a>
-  <a href="https://twitter.com/veropenaolivet" target="_blank" rel="noopener">Twitter</a>
-  <a href="https://wa.me/59899985461" target="_blank" rel="noopener">WhatsApp</a>
-  <a href="https://t.me/mdnss" target="_blank" rel="noopener">Telegram</a>
-</footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<div class="bar">
-  <div class="wrap">
-    <button class="stop" id="stopBtn" disabled title="Cortar todo (Esc)">■ <span>STOP</span></button>
-    <div class="now" id="now">Nada sonando</div>
-    <button class="rand" id="randBtn" title="Sonido al azar (R)" aria-label="Sonido al azar">🎲</button>
-    <button class="toggle" id="overlapBtn" aria-pressed="false" title="Permitir que suenen varios a la vez (S)">🔀 <span class="hide-sm">Superponer</span></button>
-    <label class="ctrl"><span class="lbl">🔊</span><input type="range" id="vol" min="0" max="1" step="0.05" value="1" aria-label="Volumen"></label>
-  </div>
-</div>
-
-<dialog id="help">
-  <h3>⌨️ Atajos</h3>
-  <table>
-    <tr><td><kbd>/</kbd></td><td>Ir al buscador</td></tr>
-    <tr><td><kbd>Enter</kbd></td><td>Reproducir el primer resultado</td></tr>
-    <tr><td><kbd>Esc</kbd></td><td>Cortar todo (y limpiar búsqueda)</td></tr>
-    <tr><td><kbd>1</kbd>–<kbd>9</kbd></td><td>Tus favoritos, en orden</td></tr>
-    <tr><td><kbd>R</kbd></td><td>Sonido al azar 🎲</td></tr>
-    <tr><td><kbd>S</kbd></td><td>Superponer sí / no</td></tr>
-    <tr><td><kbd>?</kbd></td><td>Esta ayuda</td></tr>
-  </table>
-  <p style="color:var(--muted);font-size:14px;margin:14px 0 0">Tip: con 🔗 copiás el link directo a un sonido para mandarlo por WhatsApp o Slack.</p>
-  <button class="close" id="helpClose">Listo</button>
-</dialog>
-
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <!-- Scripts de la plantilla del sitio -->
+  <script src="../assets/js/jquery.min.js"></script>
+  <script src="../assets/js/jquery.poptrox.min.js"></script>
+  <script src="../assets/js/browser.min.js"></script>
+  <script src="../assets/js/breakpoints.min.js"></script>
+  <script src="../assets/js/util.js"></script>
+  <script src="../assets/js/main.js"></script>
 
 <script>
 /* =====================================================================
@@ -358,7 +337,7 @@ const SONIDOS = [
   ["massa", "Massa...", "🗳️", "frases"],
 ];
 
-const CATEGORIAS = { frases: "💬 Frases", musica: "🎵 Música", efectos: "💥 Efectos" };
+const CATEGORIAS = { frases: "Frases", musica: "Música", efectos: "Efectos" };
 
 // En tu sitio usa la carpeta local; fuera de él (para probar) usa la URL completa.
 const BASE = /veronicapenaolivet\.com$/.test(location.hostname)
@@ -399,8 +378,8 @@ function cardHTML(s, keyNum) {
       <span class="name">${s.name}<span class="state">${stateText(s, playing.has(s.slug), keyNum)}</span></span>
     </button>
     <div class="tools">
-      <button class="tool fav${fav ? " on" : ""}" data-act="fav" aria-pressed="${fav}" title="${fav ? "Quitar de" : "Agregar a"} favoritos" aria-label="Favorito">${fav ? "★" : "☆"}</button>
-      <button class="tool" data-act="link" title="Copiar link directo" aria-label="Copiar link">🔗</button>
+      <button class="tool fav${fav ? " on" : ""}" data-act="fav" aria-pressed="${fav}" title="${fav ? "Quitar de" : "Agregar a"} favoritos" aria-label="Favorito"><span class="fa fa-star"></span></button>
+      <button class="tool" data-act="link" title="Copiar link directo" aria-label="Copiar link"><span class="fa fa-link"></span></button>
     </div>
   </div>`;
 }
@@ -418,7 +397,7 @@ function visible() {
 function renderChips() {
   const count = f => f === "todos" ? sounds.length : f === "favs" ? favs.length
     : f === "nuevos" ? sounds.filter(s => s.nuevo).length : sounds.filter(s => s.cat === f).length;
-  const opts = [["todos", "Todos"], ["favs", "⭐ Favoritos"], ["nuevos", "🆕 Nuevos"], ...Object.entries(CATEGORIAS)];
+  const opts = [["todos", "Todos"], ["favs", "Favoritos"], ["nuevos", "Nuevos"], ...Object.entries(CATEGORIAS)];
   $("chips").innerHTML = opts.map(([f, l]) =>
     `<button class="chip" data-filter="${f}" aria-pressed="${filter === f}">${l}<span class="n">${count(f)}</span></button>`).join("");
 }
@@ -436,7 +415,7 @@ function render() {
     : filter === "todos" ? `Todos (${sounds.length})` : `${list.length} sonidos`;
   renderChips();
 }
-function stateText(s, on, k) { return on ? "■ sonando" : CATEGORIAS[s.cat].slice(3) + (k ? ` <kbd>${k}</kbd>` : ""); }
+function stateText(s, on, k) { return on ? "■ sonando" : CATEGORIAS[s.cat] + (k ? ` <kbd>${k}</kbd>` : ""); }
 function favKey(s) { const i = favs.indexOf(s.slug); return i >= 0 && i < 9 ? i + 1 : 0; }
 
 function cardsFor(slug) { return document.querySelectorAll(`.card[data-slug="${slug}"]`); }
@@ -569,20 +548,6 @@ document.addEventListener("keydown", e => {
     if (sl) play(sl); else toast("Marcá favoritos con ☆ para usar las teclas 1–9");
   }
 });
-
-// tema
-const savedTheme = store.get("theme", null);
-if (savedTheme) document.documentElement.dataset.theme = savedTheme;
-$("themeBtn").onclick = () => {
-  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
-  const cur = document.documentElement.dataset.theme || (dark ? "dark" : "light");
-  const next = cur === "dark" ? "light" : "dark";
-  document.documentElement.dataset.theme = next; store.set("theme", next);
-};
-
-// barra pegajosa con borde al scrollear
-new IntersectionObserver(([en]) => $("toolbar").classList.toggle("stuck", !en.isIntersecting))
-  .observe(document.querySelector("header"));
 
 // link directo: #slug  (también acepta los viejos #botonN)
 function openHash() {
