@@ -303,7 +303,7 @@
       <tr><td><kbd>S</kbd></td><td>Superponer sí / no</td></tr>
       <tr><td><kbd>?</kbd></td><td>Esta ayuda</td></tr>
     </table>
-    <p>Tip: con <span class="fa fa-share-alt"></span> compartís el sonido. En el celular manda el audio mismo (por ejemplo a WhatsApp); en la compu copia el link directo.</p>
+    <p>Tip: con <span class="fa fa-link"></span> copiás el link directo a un sonido para mandarlo por WhatsApp o Slack.</p>
     <button class="button primary" id="helpClose">Listo</button>
   </dialog>
 
@@ -497,7 +497,7 @@ function cardHTML(s, keyNum) {
     </button>
     <div class="tools">
       <button class="tool fav${fav ? " on" : ""}" data-act="fav" aria-pressed="${fav}" title="${fav ? "Quitar de" : "Agregar a"} favoritos" aria-label="Favorito"><span class="fa fa-star"></span></button>
-      <button class="tool" data-act="share" title="Compartir (en el celu manda el audio por WhatsApp)" aria-label="Compartir"><span class="fa fa-share-alt"></span></button>
+      <button class="tool" data-act="link" title="Copiar link directo" aria-label="Copiar link"><span class="fa fa-link"></span></button>
     </div>
   </div>`;
 }
@@ -610,36 +610,7 @@ async function copyLink(slug) {
   const url = location.origin + location.pathname + "#" + slug;
   try { await navigator.clipboard.writeText(url); toast("🔗 Link copiado"); }
   catch { prompt("Copiá este link:", url); }
-}
-
-// Compartir: en el celular manda el mp3 (WhatsApp, Telegram…); si no se puede, copia el link.
-const archivos = new Map();
-const puedeCompartirArchivos = (() => {
-  try { return !!navigator.canShare && navigator.canShare({ files: [new File([""], "x.mp3", { type: "audio/mpeg" })] }); }
-  catch { return false; }
-})();
-async function share(slug) {
-  const s = bySlug[slug];
-  if (puedeCompartirArchivos) {
-    try {
-      let file = archivos.get(slug);
-      if (!file) {
-        const blob = await (await fetch(BASE + s.file + ".mp3")).blob();
-        file = new File([blob], s.name.replace(/[^\p{L}\p{N} ]+/gu, "").trim().replace(/\s+/g, "-") + ".mp3", { type: "audio/mpeg" });
-        archivos.set(slug, file);
-      }
-      await navigator.share({ files: [file] });
-      track("compartir", { sonido: s.name, metodo: "audio" });
-      return;
-    } catch (e) {
-      if (e.name === "AbortError") return;                       // cerró el menú de compartir
-      if (e.name === "NotAllowedError" && archivos.has(slug)) {   // tardó en bajar: el navegador pide otro toque
-        toast("Listo, tocá compartir de nuevo"); return;
-      }
-    }
-  }
-  await copyLink(slug);
-  track("compartir", { sonido: s.name, metodo: "link" });
+  track("compartir", { sonido: bySlug[slug].name, metodo: "link" });
 }
 
 function track(evento, datos) { try { gtag("event", evento, datos || {}); } catch {} }
@@ -666,7 +637,7 @@ document.addEventListener("click", e => {
   const btn = e.target.closest("[data-act]");
   if (btn) {
     const slug = btn.closest(".card").dataset.slug;
-    ({ play, fav: toggleFav, share })[btn.dataset.act](slug);
+    ({ play, fav: toggleFav, link: copyLink })[btn.dataset.act](slug);
     return;
   }
   const chip = e.target.closest("[data-filter]");
