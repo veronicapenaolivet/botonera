@@ -59,6 +59,13 @@
       border: solid 1px #e2e2e2; background: var(--field); color: var(--heading);
     }
 
+    /* Portada: la imagen del cassette del portfolio */
+    .bt-portada {
+      height: 11em; margin: 0 0 1.6em; border-radius: var(--radius);
+      background: #f5c400 url("../images/11.png") center 45% / cover no-repeat;
+    }
+    @media screen and (max-width: 736px) { .bt-portada { height: 8em; margin-bottom: 1.2em; } }
+
     /* Título como el "Portfolio" de la home */
     .bt-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1em; }
     .bt-head h2 { margin: 0; }
@@ -229,6 +236,7 @@
   <!-- Main -->
   <div id="main">
     <section class="bt">
+      <div class="bt-portada" role="img" aria-label="Cassette sobre fondo amarillo"></div>
       <header class="major bt-head">
         <h2>La botonera</h2>
         <div class="acciones">
