@@ -12,6 +12,8 @@ const MAX_ADJUNTO  = 10 * 1024 * 1024;                     // más grande que es
 const MAX_POR_HORA = 20;                                   // pedidos por hora desde una misma IP (la oficina comparte IP)
 const EXTENSIONES  = ['mp3', 'm4a', 'ogg', 'oga', 'opus', 'wav', 'aac', 'amr', 'flac', 'mp4', 'mov', 'webm', '3gp'];
 
+date_default_timezone_set('America/Montevideo');   // el servidor de Hostinger está en otra zona horaria
+
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
