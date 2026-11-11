@@ -268,8 +268,10 @@
 <script>
 /* =====================================================================
    SONIDOS — para agregar uno nuevo, sumá UNA línea acá arriba de todo:
-   ["archivo (sin .mp3)", "Nombre del botón", "emoji", "categoría", nuevo?]
+   ["archivo (sin .mp3)", "Nombre del botón", "emoji", "categoría", "fecha"]
    Categorías: "frases", "musica", "efectos".
+   Fecha (opcional): el día que lo agregás, ej. "2026-11-11". Muestra la
+   etiqueta NUEVO durante DIAS_NUEVO días y después se va sola.
    El orden de la lista es el orden en pantalla (los más nuevos arriba).
    ===================================================================== */
 const SONIDOS = [
@@ -337,6 +339,7 @@ const SONIDOS = [
   ["massa", "Massa...", "🗳️", "frases"],
 ];
 
+const DIAS_NUEVO = 5;
 const CATEGORIAS = { frases: "Frases", musica: "Música", efectos: "Efectos" };
 
 // En tu sitio usa la carpeta local; fuera de él (para probar) usa la URL completa.
@@ -344,8 +347,14 @@ const BASE = /veronicapenaolivet\.com$/.test(location.hostname)
   ? "audios/" : "https://veronicapenaolivet.com/botonera/audios/";
 
 /* ---------- estado ---------- */
-const sounds = SONIDOS.map(([file, name, emoji, cat, nuevo]) => ({
-  file, name, emoji, cat, nuevo: !!nuevo, slug: file.replace(/_/g, "-"),
+function esNuevo(fecha) {
+  if (!fecha) return false;
+  const [y, m, d] = fecha.split("-").map(Number);
+  const dias = (Date.now() - new Date(y, m - 1, d)) / 864e5;  // fecha local, desde las 00:00
+  return dias >= 0 && dias < DIAS_NUEVO;
+}
+const sounds = SONIDOS.map(([file, name, emoji, cat, fecha]) => ({
+  file, name, emoji, cat, nuevo: esNuevo(fecha), slug: file.replace(/_/g, "-"),
   search: norm(name + " " + file + " " + (CATEGORIAS[cat] || "")),
 }));
 const bySlug = Object.fromEntries(sounds.map(s => [s.slug, s]));

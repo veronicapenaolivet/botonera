@@ -20,10 +20,10 @@ Sonidos para la oficina. En vivo en https://veronicapenaolivet.com/botonera/
 2. En `index.html`, agregá una línea al principio de la lista `SONIDOS`:
 
    ```js
-   ["bocina", "Bocina", "📯", "efectos", true],
+   ["bocina", "Bocina", "📯", "efectos", "2026-11-11"],
    ```
 
-   Los campos son: archivo sin `.mp3`, nombre del botón, emoji, categoría (`frases`, `musica` o `efectos`) y `true` si querés que tenga el cartel NUEVO.
+   Los campos son: archivo sin `.mp3`, nombre del botón, emoji, categoría (`frases`, `musica` o `efectos`) y, opcionalmente, la fecha en que lo agregás. Con fecha, el botón muestra la etiqueta NUEVO durante 5 días (`DIAS_NUEVO`) y después se va sola.
 
 ## Publicar
 
