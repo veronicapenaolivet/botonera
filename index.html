@@ -117,6 +117,7 @@
     .card:hover { border-color: #d9efe8; }
     .card .prog { position: absolute; inset: 0; background: var(--accent-soft); transform-origin: left; transform: scaleX(var(--p)); pointer-events: none; }
     .card.playing { border-color: var(--accent); }
+    .card.paused { border-color: var(--accent); border-style: dashed; }
     .card.flash { animation: flash 1.2s ease 2; }
     .card.pulse { animation: pulse .28s ease; }
     @keyframes pulse { 35% { transform: scale(.95); } 100% { transform: scale(1); } }
@@ -132,7 +133,7 @@
     .name { color: var(--heading); line-height: 1.25; overflow-wrap: break-word; min-width: 0; }
     .card.playing .name { color: var(--accent); }
     .state { display: block; font-size: 0.8em; color: #b2b2b2; margin-top: 0.15em; }
-    .card.playing .state { color: var(--accent); }
+    .card.playing .state, .card.paused .state { color: var(--accent); }
     .state kbd { margin-left: 0.3em; font-size: 0.85em; padding: 0 5px; }
 
     .tools { position: absolute; top: 0.15em; right: 0.15em; display: flex; flex-direction: column; }
@@ -485,6 +486,7 @@ let query = "";
 
 const audios = new Map();   // slug -> HTMLAudioElement (se crean recién al tocar)
 const playing = new Set();  // slugs sonando
+const paused = new Set();   // slugs en pausa (conservan la posición)
 
 function norm(t) { return t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
 const $ = id => document.getElementById(id);
@@ -492,12 +494,12 @@ const $ = id => document.getElementById(id);
 /* ---------- render ---------- */
 function cardHTML(s, keyNum) {
   const fav = favs.includes(s.slug);
-  return `<div class="card${playing.has(s.slug) ? " playing" : ""}" data-slug="${s.slug}" data-cat="${s.cat}">
+  return `<div class="card${playing.has(s.slug) ? " playing" : paused.has(s.slug) ? " paused" : ""}" data-slug="${s.slug}" data-cat="${s.cat}">
     <div class="prog"></div>
     ${s.nuevo ? '<span class="badge">NUEVO</span>' : ""}
     <button class="play" data-act="play" aria-label="Reproducir ${s.name}">
       <span class="emoji" aria-hidden="true">${s.emoji}</span>
-      <span class="name">${s.name}<span class="state">${stateText(s, playing.has(s.slug), keyNum)}</span></span>
+      <span class="name">${s.name}<span class="state">${stateText(s, estado(s.slug), keyNum)}</span></span>
     </button>
     <div class="tools">
       <button class="tool fav${fav ? " on" : ""}" data-act="fav" aria-pressed="${fav}" title="${fav ? "Quitar de" : "Agregar a"} favoritos" aria-label="Favorito"><span class="fa fa-star"></span></button>
@@ -538,28 +540,38 @@ function render() {
     : filter === "todos" ? `Todos (${sounds.length})` : `${list.length} sonidos`;
   renderChips();
 }
-function stateText(s, on, k) { return on ? "■ sonando" : CATEGORIAS[s.cat] + (k ? ` <kbd>${k}</kbd>` : ""); }
+function estado(slug) { return playing.has(slug) ? "sonando" : paused.has(slug) ? "pausa" : ""; }
+function stateText(s, est, k) {
+  if (est === "sonando") return "❚❚ sonando · tocá para pausar";
+  if (est === "pausa") return "▶ en pausa · tocá para seguir";
+  return CATEGORIAS[s.cat] + (k ? ` <kbd>${k}</kbd>` : "");
+}
 function favKey(s) { const i = favs.indexOf(s.slug); return i >= 0 && i < 9 ? i + 1 : 0; }
 
 function cardsFor(slug) { return document.querySelectorAll(`.card[data-slug="${slug}"]`); }
 function refreshCard(slug) {
-  const s = bySlug[slug], on = playing.has(slug);
+  const s = bySlug[slug], est = estado(slug);
   cardsFor(slug).forEach(c => {
-    c.classList.toggle("playing", on);
-    c.querySelector(".state").innerHTML = stateText(s, on, favKey(s));
-    if (!on) c.style.setProperty("--p", 0);
+    c.classList.toggle("playing", est === "sonando");
+    c.classList.toggle("paused", est === "pausa");
+    c.querySelector(".state").innerHTML = stateText(s, est, favKey(s));
+    if (!est) c.style.setProperty("--p", 0);
   });
 }
 function refreshBar() {
-  $("stopBtn").disabled = playing.size === 0;
-  const names = [...playing].map(sl => bySlug[sl].emoji + " <b>" + bySlug[sl].name + "</b>");
-  $("now").innerHTML = names.length ? "Sonando: " + names.join(", ") : "Nada sonando";
+  $("stopBtn").disabled = playing.size === 0 && paused.size === 0;
+  const nombres = set => [...set].map(sl => bySlug[sl].emoji + " <b>" + bySlug[sl].name + "</b>").join(", ");
+  const partes = [];
+  if (playing.size) partes.push("Sonando: " + nombres(playing));
+  if (paused.size) partes.push("En pausa: " + nombres(paused));
+  $("now").innerHTML = partes.length ? partes.join(" · ") : "Nada sonando";
 }
 
 /* ---------- audio ---------- */
 function play(slug) {
   const s = bySlug[slug];
-  if (playing.has(slug)) { stop(slug); return; }
+  if (playing.has(slug)) { pause(slug); return; }
+  if (paused.has(slug)) { resume(slug); return; }
   if (!overlap) stopAll();
   let a = audios.get(slug);
   if (!a) {
@@ -580,13 +592,28 @@ function play(slug) {
   store.set("recents", recents);
   tick();
 }
+function pause(slug) {
+  const a = audios.get(slug);
+  if (a) a.pause();
+  playing.delete(slug); paused.add(slug);
+  refreshCard(slug); refreshBar();
+}
+function resume(slug) {
+  if (!overlap) [...playing, ...paused].filter(x => x !== slug).forEach(stop);
+  const a = audios.get(slug);
+  paused.delete(slug); playing.add(slug);
+  refreshCard(slug); refreshBar();
+  a.volume = volume;
+  a.play().catch(err => { stop(slug); if (err.name !== "AbortError") toast("No se pudo reproducir 😕"); });
+  tick();
+}
 function stop(slug) {
   const a = audios.get(slug);
   if (a) { a.pause(); a.currentTime = 0; }
-  playing.delete(slug);
+  playing.delete(slug); paused.delete(slug);
   refreshCard(slug); refreshBar();
 }
-function stopAll() { [...playing].forEach(stop); }
+function stopAll() { [...playing, ...paused].forEach(stop); }
 
 let raf = 0;
 function tick() {

@@ -7,7 +7,7 @@ Sonidos para la oficina. En vivo en https://veronicapenaolivet.com/botonera/
 - Buscador (`/` para enfocarlo, Enter reproduce el primer resultado)
 - STOP fijo abajo y tecla `Esc` para cortar todo
 - Opción para superponer sonidos o reproducir de a uno
-- Barra de progreso dentro de cada botón
+- Barra de progreso dentro de cada botón; tocar un sonido que está sonando lo pausa y otro toque lo sigue desde ahí
 - ⭐ Favoritos (teclas `1`–`9`) y 🕘 últimos usados, guardados en el navegador
 - Filtros por categoría y por sonidos nuevos
 - 🎲 Sonido al azar (tecla `R`)
