@@ -79,6 +79,26 @@
       padding: 0.25em 0.9em; cursor: pointer; font-size: 0.9em; white-space: nowrap; transition: background-color .2s, color .2s;
     }
     .bt-pedir:hover { background: var(--accent); color: #fff; }
+    .bt-donar {
+      border: solid 2px var(--border); background: transparent; color: var(--heading); border-radius: var(--radius);
+      padding: 0.25em 0.9em; cursor: pointer; font-size: 0.9em; white-space: nowrap; transition: border-color .2s, color .2s;
+    }
+    .bt-donar .fa { color: #e0607e; }
+    .bt-donar:hover { border-color: #e0607e; color: #e0607e; }
+    @media screen and (max-width: 480px) {
+      .bt-head { flex-wrap: wrap; row-gap: 0.6em; }
+      .bt-head .acciones { width: 100%; }
+      .bt-head .acciones .bt-pedir, .bt-head .acciones .bt-donar { flex: 1; }
+    }
+    /* Donaciones */
+    .bt-donaciones .metodos { display: flex; flex-direction: column; gap: 0.6em; margin-top: 1.2em; }
+    .bt-donaciones .metodos .button { margin: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5em; }
+    .bt-donaciones .mp { background: #00b1ea; border-color: #00b1ea; color: #fff !important; }
+    .bt-donaciones .mp:hover { background: #009ee3; border-color: #009ee3; color: #fff !important; }
+    .bt-donaciones .pp { background: #ffc439; border-color: #ffc439; color: #253b80 !important; }
+    .bt-donaciones .pp:hover { background: #f2ba36; border-color: #f2ba36; color: #253b80 !important; }
+    .bt-donaciones .cerrar { margin-top: 0.6em !important; }
+    .bt-donaciones [hidden] { display: none !important; }
 
     /* Buscador + filtros */
     .bt-toolbar { position: sticky; top: 0; z-index: 5; background: #fff; padding: 0.75em 0 0.5em; margin-bottom: 0.5em; }
@@ -242,6 +262,7 @@
         <h2>La botonera</h2>
         <div class="acciones">
           <button class="bt-pedir" id="pedirBtn"><span class="fa fa-plus"></span>&nbsp; Pedir un audio</button>
+          <button class="bt-donar" id="donarBtn"><span class="fa fa-heart"></span>&nbsp; Donar</button>
           <button class="bt-help" id="helpBtn" title="Atajos de teclado (?)" aria-label="Atajos de teclado"><span class="fa fa-keyboard"></span></button>
         </div>
       </header>
@@ -306,6 +327,16 @@
     </table>
     <p>Tip: con <span class="fa fa-link"></span> copiás el link directo a un sonido para mandarlo por WhatsApp o Slack.</p>
     <button class="button primary" id="helpClose">Listo</button>
+  </dialog>
+
+  <dialog class="bt-dialog bt-donaciones" id="donar">
+    <h2>¿Te sacó una sonrisa? 💚</h2>
+    <p>La botonera es gratis y sin publicidad. Si querés, podés colaborar con unos mangos para mantenerla y seguir sumando audios. ¡Gracias!</p>
+    <div class="metodos">
+      <a class="button mp" id="donarMP" href="https://link.mercadopago.com.uy/vpo" target="_blank" rel="noopener">Donar con Mercado Pago</a>
+      <a class="button pp" id="donarPP" href="#" target="_blank" rel="noopener" hidden><span class="icon brands fa-paypal"></span> Donar con PayPal</a>
+    </div>
+    <button class="button cerrar" id="donarCerrar">Cerrar</button>
   </dialog>
 
   <dialog class="bt-dialog bt-form" id="pedir">
@@ -692,6 +723,14 @@ $("helpBtn").onclick = () => $("help").showModal();
 $("helpClose").onclick = () => $("help").close();
 
 /* ---------- pedir un audio ---------- */
+/* ---------- donaciones ---------- */
+const PAYPAL_URL = "";   // pegá acá tu link de PayPal (ej. https://www.paypal.com/paypalme/usuario)
+if (PAYPAL_URL) { $("donarPP").href = PAYPAL_URL; $("donarPP").hidden = false; }
+$("donarBtn").onclick = () => { $("donar").showModal(); track("abrir_donar"); };
+$("donarCerrar").onclick = () => $("donar").close();
+$("donarMP").onclick = () => track("donar", { metodo: "mercadopago" });
+$("donarPP").onclick = () => track("donar", { metodo: "paypal" });
+
 const PEDIR_URL = "pedir.php";
 const MAX_MB = 15;
 let pedirAbierto = 0;
@@ -731,7 +770,7 @@ $("pedirForm").addEventListener("submit", async e => {
 document.addEventListener("keydown", e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const typing = !!e.target.closest("input, textarea, select");
-  const dialogoAbierto = $("help").open || $("pedir").open;
+  const dialogoAbierto = $("help").open || $("pedir").open || $("donar").open;
   if (e.key === "Escape") {
     if (dialogoAbierto) return;
     stopAll();

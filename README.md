@@ -44,9 +44,13 @@ El botón **Pedir un audio** abre un formulario que envía los datos a `pedir.ph
 - Guarda los archivos y un registro `pedidos.csv` en `botonera_pedidos/`, **fuera** de `public_html`.
 - Antispam: campo trampa invisible, tiempo mínimo para completar el formulario y hasta 20 pedidos por hora desde una misma IP.
 
+## Donaciones
+
+El botón **Donar** abre un diálogo con Mercado Pago (https://link.mercadopago.com.uy/vpo). Para sumar PayPal, pegá el link en `PAYPAL_URL` dentro de `index.html`: el botón aparece solo cuando hay link.
+
 ## Métricas (GA4)
 
-En `index.html`, pegá el ID de medición en `GA_ID` (formato `G-XXXXXXXXXX`). Eventos que se registran: `reproducir_sonido`, `search`, `compartir`, `favorito` y `pedir_audio`.
+En `index.html`, pegá el ID de medición en `GA_ID` (formato `G-XXXXXXXXXX`). Eventos que se registran: `reproducir_sonido`, `search`, `compartir`, `favorito`, `pedir_audio`, `abrir_donar` y `donar`.
 
 ## Publicar
 
