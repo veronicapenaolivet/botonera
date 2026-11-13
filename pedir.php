@@ -7,6 +7,7 @@
 
 const DESTINO      = 'botonera@veronicapenaolivet.com';
 const REMITENTE    = 'botonera@veronicapenaolivet.com';   // mismo dominio: llega mejor
+const BOTONERA_URL = 'https://veronicapenaolivet.com/botonera/';
 const MAX_BYTES    = 15 * 1024 * 1024;                     // 15 MB por archivo
 const MAX_ADJUNTO  = 10 * 1024 * 1024;                     // más grande que esto no se adjunta (queda guardado)
 const MAX_POR_HORA = 20;                                   // pedidos por hora desde una misma IP (la oficina comparte IP)
@@ -118,22 +119,69 @@ $lim[$clave][] = $ahora;
 
 // Mail.
 $asunto = 'Pedido para la botonera: ' . mb_substr(una_linea($que), 0, 60);
+$tamanoTxt = $guardado ? ($tamano < 1048576 ? max(1, round($tamano / 1024)) . ' KB' : round($tamano / 1048576, 1) . ' MB') : '';
+
+// Aviso listo para mandar cuando el audio esté en la botonera.
+$saludo = $nombre !== '' ? '¡Hola ' . $nombre . '!' : '¡Hola!';
+$aviso  = $saludo . ' El audio que pediste («' . mb_substr(una_linea($que), 0, 120) . '») ya está disponible en la botonera 🎉 ' . BOTONERA_URL;
+$linkWhatsApp = 'https://wa.me/?text=' . rawurlencode($aviso);
+$linkTelegram = 'https://t.me/share/url?url=' . rawurlencode(BOTONERA_URL)
+              . '&text=' . rawurlencode(trim(str_replace(BOTONERA_URL, '', $aviso)));
+
 $cuerpo = "Nuevo pedido de audio para la botonera\n"
         . "======================================\n\n"
         . "Qué audio: " . $que . "\n"
         . "Link: " . ($link !== '' ? $link : '—') . "\n"
         . "Pidió: " . ($nombre !== '' ? $nombre : 'anónimo') . "\n"
-        . "Archivo: " . ($guardado ? "$original (" . ($tamano < 1048576 ? max(1, round($tamano / 1024)) . ' KB' : round($tamano / 1048576, 1) . ' MB') . "), guardado como $guardado en $dir" : '—') . "\n\n"
-        . "Fecha: " . date('d/m/Y H:i') . "\n";
+        . "Archivo: " . ($guardado ? "$original ($tamanoTxt), guardado como $guardado en $dir" : '—') . "\n\n"
+        . "Fecha: " . date('d/m/Y H:i') . "\n\n"
+        . "Cuando esté en la botonera, avisale:\n"
+        . "WhatsApp: $linkWhatsApp\n"
+        . "Telegram: $linkTelegram\n";
+
+$h = fn(string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+$fila = fn(string $k, string $v): string =>
+    '<tr><td style="padding:6px 12px 6px 0;color:#999;vertical-align:top;white-space:nowrap">' . $k . '</td>'
+  . '<td style="padding:6px 0;color:#333">' . $v . '</td></tr>';
+$linkHtml = $link !== ''
+    ? (preg_match('~^https?://~i', $link) ? '<a href="' . $h($link) . '" style="color:#49bf9d">' . $h($link) . '</a>' : $h($link))
+    : '—';
+$boton = fn(string $url, string $texto, string $color): string =>
+    '<a href="' . $h($url) . '" style="display:inline-block;background:' . $color . ';color:#fff;text-decoration:none;'
+  . 'padding:11px 18px;border-radius:6px;font-weight:bold;margin:0 8px 8px 0">' . $texto . '</a>';
+
+$html = '<!doctype html><html><body style="margin:0;padding:0;background:#f4f2ee">'
+      . '<div style="max-width:560px;margin:0 auto;padding:24px 16px;font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5">'
+      . '<div style="background:#fff;border-radius:10px;padding:22px 22px 18px;border-top:4px solid #49bf9d">'
+      . '<h2 style="margin:0 0 14px;font-size:19px;color:#555;font-weight:normal">🎵 Nuevo pedido para la botonera</h2>'
+      . '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%">'
+      . $fila('Qué audio', '<b>' . nl2br($h($que)) . '</b>')
+      . $fila('Link', $linkHtml)
+      . $fila('Pidió', $nombre !== '' ? $h($nombre) : 'anónimo')
+      . $fila('Archivo', $guardado ? $h("$original ($tamanoTxt)") . ($tamano <= MAX_ADJUNTO ? ' — va adjunto' : ' — guardado en el servidor como ' . $h($guardado)) : '—')
+      . $fila('Fecha', date('d/m/Y H:i'))
+      . '</table>'
+      . '<div style="margin-top:20px;padding-top:16px;border-top:1px solid #eee">'
+      . '<p style="margin:0 0 10px;color:#555">Cuando esté en la botonera, avisale' . ($nombre !== '' ? ' a <b>' . $h($nombre) . '</b>' : '') . ':</p>'
+      . $boton($linkWhatsApp, 'Avisar por WhatsApp', '#25d366')
+      . $boton($linkTelegram, 'Avisar por Telegram', '#2aabee')
+      . '<p style="margin:8px 0 0;color:#999;font-size:13px">Se abre con el mensaje ya escrito; solo elegís el contacto y lo mandás:<br><i>' . $h($aviso) . '</i></p>'
+      . '</div></div></div></body></html>';
 
 $borde   = 'b_' . bin2hex(random_bytes(12));
+$bordeAlt = 'a_' . bin2hex(random_bytes(12));
 $headers = [
     'From: Botonera <' . REMITENTE . '>',
     'MIME-Version: 1.0',
     'Content-Type: multipart/mixed; boundary="' . $borde . '"',
 ];
-$msg  = "--$borde\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n"
-      . chunk_split(base64_encode($cuerpo)) . "\r\n";
+// Texto simple + versión con botones (el programa de mail muestra la que pueda).
+$msg  = "--$borde\r\nContent-Type: multipart/alternative; boundary=\"$bordeAlt\"\r\n\r\n"
+      . "--$bordeAlt\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n"
+      . chunk_split(base64_encode($cuerpo)) . "\r\n"
+      . "--$bordeAlt\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n"
+      . chunk_split(base64_encode($html)) . "\r\n"
+      . "--$bordeAlt--\r\n";
 if ($guardado && $tamano <= MAX_ADJUNTO) {
     $nombreAdj = preg_replace('/[^\w.\-]+/u', '_', $original) ?: $guardado;
     $msg .= "--$borde\r\nContent-Type: $mime; name=\"$nombreAdj\"\r\nContent-Transfer-Encoding: base64\r\n"

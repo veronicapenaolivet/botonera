@@ -42,6 +42,7 @@ El botón **Pedir un audio** abre un formulario que envía los datos a `pedir.ph
 
 - Manda un mail a `botonera@veronicapenaolivet.com` con el pedido y el audio adjunto (hasta 10 MB; los más grandes quedan solo guardados).
 - Guarda los archivos y un registro `pedidos.csv` en `botonera_pedidos/`, **fuera** de `public_html`.
+- El mail trae botones **Avisar por WhatsApp** y **Avisar por Telegram** que abren un mensaje ya escrito («¡Hola …! El audio que pediste … ya está disponible en la botonera»); solo hay que elegir el contacto.
 - Antispam: campo trampa invisible, tiempo mínimo para completar el formulario y hasta 20 pedidos por hora desde una misma IP.
 
 ## App instalable
