@@ -171,6 +171,21 @@
     }
     .card:has(.badge) .play { padding-top: 1em; }
 
+    /* Celulares y pantallas táctiles: favorito y compartir como dos botones grandes y separados */
+    @media (pointer: coarse), screen and (max-width: 736px) {
+      .tools {
+        top: 0; right: 0; bottom: 0; width: 44px;
+        border-left: solid 1px var(--border);
+      }
+      .tool {
+        width: 44px; height: auto; min-height: 44px; flex: 1;
+        border-radius: 0; font-size: 16px; color: #c8c8c8;
+      }
+      .tool + .tool { border-top: solid 1px var(--border); }
+      .tool:active { background: var(--accent-soft); color: var(--accent); }
+      .play { min-height: 88px; padding-right: 52px; }
+    }
+
     /* Barra inferior: ocupa sólo la columna de contenido, como #main */
     #main { padding-bottom: 7em; }
     .bt-bar {
