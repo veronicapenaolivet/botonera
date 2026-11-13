@@ -50,7 +50,7 @@ La botonera se puede instalar en el celular, con ícono propio (`iconos/`) y uso
 
 - `manifest.json`: nombre, colores e íconos de la app.
 - `sw.js`: guarda la página, los estilos y los audios. Si lo cambiás, subí `VERSION`.
-- En el celular aparece un cartel abajo para instalarla: en Android abre el aviso del sistema; en iPhone (Safari) muestra los pasos. Si lo cierran con la ✕ no vuelve a aparecer, y no se muestra cuando ya está instalada.
+- En el celular aparece un cartel abajo para instalarla. En Android con Chrome, Edge o Samsung Internet abre el aviso del sistema; en Firefox para Android y en iPhone (Safari, y Chrome, Edge o Firefox desde iOS 16.4) muestra los pasos para ese navegador. Si lo cierran con la ✕ no vuelve a aparecer, y no se muestra cuando ya está instalada ni en navegadores que no permiten instalar (por ejemplo, el de Instagram).
 - Instalada como app, guarda todos los audios para usarla sin conexión.
 
 ## Donaciones

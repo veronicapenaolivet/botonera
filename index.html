@@ -438,16 +438,12 @@
     </form>
   </dialog>
 
-  <dialog class="bt-dialog bt-ios" id="pasosIos">
-    <h2>Instalar en el iPhone</h2>
-    <p>Son tres toques en <b>Safari</b>:</p>
-    <ol>
-      <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg></span><span class="t">Tocá <b>Compartir</b>, el cuadrado con la flecha (abajo o arriba de la pantalla).</span></li>
-      <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg></span><span class="t">Bajá y elegí <b>«Agregar a pantalla de inicio»</b>.</span></li>
-      <li><span class="ico txt-ico">Agregar</span><span class="t">Tocá <b>Agregar</b>, arriba a la derecha. ¡Listo!</span></li>
-    </ol>
+  <dialog class="bt-dialog bt-ios" id="pasos">
+    <h2 id="pasosTitulo">Instalar la botonera</h2>
+    <p id="pasosIntro"></p>
+    <ol id="pasosLista"></ol>
     <p class="nota">Aparece la botonera con su ícono del cassette, junto a tus apps.</p>
-    <button class="button primary" id="pasosIosOk">Entendido</button>
+    <button class="button primary" id="pasosOk">Entendido</button>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -910,7 +906,7 @@ $("pedirForm").addEventListener("submit", async e => {
 document.addEventListener("keydown", e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const typing = !!e.target.closest("input, textarea, select");
-  const dialogoAbierto = $("help").open || $("pedir").open || $("donar").open || $("compartir").open || $("pasosIos").open;
+  const dialogoAbierto = $("help").open || $("pedir").open || $("donar").open || $("compartir").open || $("pasos").open;
   if (e.key === "Escape") {
     if (dialogoAbierto) return;
     stopAll();
@@ -946,9 +942,51 @@ function openHash() {
 /* ---------- app instalable ---------- */
 const esApp = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 const esCelu = matchMedia("(pointer: coarse)").matches && Math.min(screen.width, screen.height) < 820;
-const esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-const esSafariIOS = esIOS && /Safari/.test(navigator.userAgent) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA/.test(navigator.userAgent);
-let pedidoInstalar = null;   // el aviso de instalación de Android/Chrome, guardado para cuando toquen "Instalar"
+const UA = navigator.userAgent;
+const esIOS = /iPhone|iPad|iPod/.test(UA) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const esAndroid = /Android/.test(UA);
+const versionIOS = (() => { const m = UA.match(/OS (\d+)_(\d+)/); return m ? +m[1] * 100 + +m[2] : 0; })();   // 16.4 → 1604
+let pedidoInstalar = null;   // el aviso de instalación de Android (Chrome, Edge, Samsung…), guardado para cuando toquen "Instalar"
+
+// Íconos para los pasos
+const ICO = {
+  compartir: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>',
+  agregar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg>',
+  puntosV: '<b style="font-size:1.3em;line-height:1">⋮</b>',
+  puntosH: '<b style="font-size:1.1em;line-height:1">···</b>',
+  hamburguesa: '<b style="font-size:1.1em;line-height:1">☰</b>',
+};
+const paso = (ico, txt, esTexto) => ({ ico, txt, esTexto });
+const PASO_AGREGAR = paso("Agregar", "Confirmá con <b>Agregar</b>. ¡Listo!", true);
+
+// Qué pasos mostrar según el sistema y el navegador. null = no se puede instalar (no se muestra el cartel).
+const GUIA = (() => {
+  if (esIOS) {
+    const titulo = "Instalar en el iPhone";
+    if (/CriOS/.test(UA)) return versionIOS >= 1604 && { titulo, intro: "Son tres toques en <b>Chrome</b>:", pasos: [
+      paso(ICO.compartir, "Tocá <b>Compartir</b>, en la barra de direcciones (arriba a la derecha)."),
+      paso(ICO.agregar, "Elegí <b>«Agregar a pantalla de inicio»</b>. Si no aparece, buscalo en <b>«Más»</b> o deslizando la lista."),
+      PASO_AGREGAR] };
+    if (/FxiOS/.test(UA)) return versionIOS >= 1604 && { titulo, intro: "Son pocos toques en <b>Firefox</b>:", pasos: [
+      paso(ICO.hamburguesa, "Abrí el <b>menú</b> del navegador (☰, abajo a la derecha) y tocá <b>Compartir</b>."),
+      paso(ICO.agregar, "Elegí <b>«Agregar a pantalla de inicio»</b>."),
+      PASO_AGREGAR] };
+    if (/EdgiOS/.test(UA)) return versionIOS >= 1604 && { titulo, intro: "Son pocos toques en <b>Edge</b>:", pasos: [
+      paso(ICO.puntosH, "Abrí el <b>menú</b> del navegador (···) y tocá <b>Compartir</b>."),
+      paso(ICO.agregar, "Elegí <b>«Agregar a pantalla de inicio»</b>."),
+      PASO_AGREGAR] };
+    if (/Safari/.test(UA) && !/OPiOS|GSA|FBAN|FBAV|Instagram/.test(UA)) return { titulo, intro: "Son tres toques en <b>Safari</b>:", pasos: [
+      paso(ICO.compartir, "Tocá <b>Compartir</b>, el cuadrado con la flecha (abajo o arriba de la pantalla)."),
+      paso(ICO.agregar, "Bajá y elegí <b>«Agregar a pantalla de inicio»</b>."),
+      paso("Agregar", "Tocá <b>Agregar</b>, arriba a la derecha. ¡Listo!", true)] };
+    return null;   // apps como Instagram o Facebook: no dejan instalar
+  }
+  if (esAndroid && /Firefox/.test(UA)) return { titulo: "Instalar en Android", intro: "Son pocos toques en <b>Firefox</b>:", pasos: [
+    paso(ICO.puntosV, "Abrí el <b>menú ⋮</b> del navegador (arriba o abajo a la derecha)."),
+    paso(ICO.agregar, "Elegí <b>«Instalar»</b> o <b>«Agregar a pantalla de inicio»</b>."),
+    PASO_AGREGAR] };
+  return null;   // Chrome, Edge, Samsung…: usan el aviso del sistema (beforeinstallprompt)
+})();
 
 function mostrarInstalar() {
   if (esApp || !esCelu || store.get("instalarCerrado", false)) return;
@@ -956,10 +994,17 @@ function mostrarInstalar() {
   document.body.classList.add("con-instalar");
 }
 function ocultarInstalar() { $("instalar").hidden = true; document.body.classList.remove("con-instalar"); }
+function mostrarPasos() {
+  $("pasosTitulo").textContent = GUIA.titulo;
+  $("pasosIntro").innerHTML = GUIA.intro;
+  $("pasosLista").innerHTML = GUIA.pasos.map(p =>
+    `<li><span class="ico${p.esTexto ? " txt-ico" : ""}">${p.ico}</span><span class="t">${p.txt}</span></li>`).join("");
+  $("pasos").showModal();
+}
 
 addEventListener("beforeinstallprompt", e => { e.preventDefault(); pedidoInstalar = e; mostrarInstalar(); });
 addEventListener("appinstalled", () => { ocultarInstalar(); toast("📲 ¡Listo! La botonera ya está en tu celu"); track("instalar", { resultado: "instalada" }); });
-if (esSafariIOS) mostrarInstalar();
+if (GUIA) mostrarInstalar();
 
 $("instalarSi").onclick = async () => {
   if (pedidoInstalar) {
@@ -968,13 +1013,13 @@ $("instalarSi").onclick = async () => {
     track("instalar", { resultado: outcome === "accepted" ? "aceptada" : "cancelada" });
     if (outcome === "accepted") ocultarInstalar();
     pedidoInstalar = null;
-  } else {
-    $("pasosIos").showModal();
-    track("instalar", { resultado: "pasos_ios" });
+  } else if (GUIA) {
+    mostrarPasos();
+    track("instalar", { resultado: "pasos", navegador: GUIA.intro.replace(/<[^>]+>/g, "") });
   }
 };
 $("instalarNo").onclick = () => { store.set("instalarCerrado", true); ocultarInstalar(); };
-$("pasosIosOk").onclick = () => $("pasosIos").close();
+$("pasosOk").onclick = () => $("pasos").close();
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").then(() => {
