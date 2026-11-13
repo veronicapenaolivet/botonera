@@ -44,6 +44,15 @@ El botón **Pedir un audio** abre un formulario que envía los datos a `pedir.ph
 - Guarda los archivos y un registro `pedidos.csv` en `botonera_pedidos/`, **fuera** de `public_html`.
 - Antispam: campo trampa invisible, tiempo mínimo para completar el formulario y hasta 20 pedidos por hora desde una misma IP.
 
+## App instalable
+
+La botonera se puede instalar en el celular, con ícono propio (`iconos/`) y uso sin internet:
+
+- `manifest.json`: nombre, colores e íconos de la app.
+- `sw.js`: guarda la página, los estilos y los audios. Si lo cambiás, subí `VERSION`.
+- En el celular aparece un cartel abajo para instalarla: en Android abre el aviso del sistema; en iPhone (Safari) muestra los pasos. Si lo cierran con la ✕ no vuelve a aparecer, y no se muestra cuando ya está instalada.
+- Instalada como app, guarda todos los audios para usarla sin conexión.
+
 ## Donaciones
 
 El botón **Donar** abre un diálogo con Mercado Pago (https://link.mercadopago.com.uy/vpo). Para sumar PayPal, pegá el link en `PAYPAL_URL` dentro de `index.html`: el botón aparece solo cuando hay link.
@@ -54,4 +63,4 @@ En `index.html`, pegá el ID de medición en `GA_ID` (formato `G-XXXXXXXXXX`). E
 
 ## Publicar
 
-Subí `index.html`, `pedir.php`, `audios/` e `images/` a la carpeta `/botonera/` del sitio.
+Subí `index.html`, `pedir.php`, `manifest.json`, `sw.js`, `audios/`, `images/` e `iconos/` a la carpeta `/botonera/` del sitio.

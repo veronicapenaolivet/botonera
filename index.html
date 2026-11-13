@@ -7,6 +7,15 @@
   <meta name="description" content="Sonidos para la oficina">
   <link rel="icon" href="images/favicon.png">
 
+  <!-- App instalable -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#49bf9d">
+  <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Botonera">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://veronicapenaolivet.com/botonera/">
   <meta property="og:title" content="La botonera">
@@ -188,6 +197,32 @@
 
     /* Barra inferior: ocupa sólo la columna de contenido, como #main */
     #main { padding-bottom: 7em; }
+    body.con-instalar #main { padding-bottom: 12em; }
+
+    /* Cartel "Instalar app" (solo celulares, arriba de la barra inferior) */
+    .instalar { display: flex; align-items: center; gap: 0.7em; padding: 0.6em 1em; border-bottom: solid 1px var(--border); background: #fffaf0; }
+    .instalar[hidden] { display: none; }
+    .instalar img { width: 2.4em; height: 2.4em; border-radius: 0.55em; flex: none; }
+    .instalar .txt { flex: 1; min-width: 0; color: var(--heading); line-height: 1.25; }
+    .instalar .txt small { display: block; color: #b2b2b2; font-size: 0.85em; }
+    .instalar .si {
+      border: 0; background: var(--accent); color: #fff !important; border-radius: var(--radius);
+      padding: 0 1em; height: 2.3em; cursor: pointer; flex: none; font-weight: 600;
+    }
+    .instalar .no { border: 0; background: none; color: #b2b2b2; cursor: pointer; font-size: 1.1em; padding: 0.3em; flex: none; }
+
+    /* Pasos para iPhone */
+    .bt-ios ol { list-style: none; margin: 1em 0 0; padding: 0; counter-reset: paso; }
+    .bt-ios li { counter-increment: paso; display: flex; align-items: center; gap: 0.8em; padding: 0.7em 0; border-bottom: solid 1px var(--border); color: var(--heading); }
+    .bt-ios li::before {
+      content: counter(paso); flex: none; width: 1.7em; height: 1.7em; border-radius: 50%;
+      background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 0.85em; font-weight: 700; line-height: 1;
+    }
+    .bt-ios .ico { flex: none; width: 1.9em; height: 1.9em; display: grid; place-items: center; border-radius: 0.45em; background: var(--field); color: #007aff; }
+    .bt-ios .ico svg { width: 1.2em; height: 1.2em; }
+    .bt-ios .ico.txt-ico { width: auto; padding: 0 0.45em; font-size: 0.75em; font-weight: 700; height: 2.5em; }
+    .bt-ios li .t { flex: 1; min-width: 0; line-height: 1.4; }
+    .bt-ios p.nota { font-size: 0.85em; color: #b2b2b2; margin-top: 0.9em; line-height: 1.4; }
     .bt-bar {
       position: fixed; right: 0; bottom: 0; left: 35%; z-index: 10;
       background: rgba(255,255,255,.95); border-top: solid 2px var(--border);
@@ -322,6 +357,12 @@
   </footer>
 
   <div class="bt-bar bt">
+    <div class="instalar" id="instalar" hidden>
+      <img src="iconos/icon-192.png" alt="">
+      <div class="txt">Tené la botonera como app<small>Con su ícono y sin internet</small></div>
+      <button class="si" id="instalarSi">Instalar</button>
+      <button class="no" id="instalarNo" aria-label="No mostrar más">✕</button>
+    </div>
     <div class="in">
       <button class="stop" id="stopBtn" disabled title="Cortar todo (Esc)"><span class="fa fa-stop"></span>&nbsp; STOP</button>
       <div class="now" id="now">Nada sonando</div>
@@ -395,6 +436,18 @@
         <button type="button" class="button primary" id="pedirListo">Listo</button>
       </div>
     </form>
+  </dialog>
+
+  <dialog class="bt-dialog bt-ios" id="pasosIos">
+    <h2>Instalar en el iPhone</h2>
+    <p>Son tres toques en <b>Safari</b>:</p>
+    <ol>
+      <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg></span><span class="t">Tocá <b>Compartir</b>, el cuadrado con la flecha (abajo o arriba de la pantalla).</span></li>
+      <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg></span><span class="t">Bajá y elegí <b>«Agregar a pantalla de inicio»</b>.</span></li>
+      <li><span class="ico txt-ico">Agregar</span><span class="t">Tocá <b>Agregar</b>, arriba a la derecha. ¡Listo!</span></li>
+    </ol>
+    <p class="nota">Aparece la botonera con su ícono del cassette, junto a tus apps.</p>
+    <button class="button primary" id="pasosIosOk">Entendido</button>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -857,7 +910,7 @@ $("pedirForm").addEventListener("submit", async e => {
 document.addEventListener("keydown", e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const typing = !!e.target.closest("input, textarea, select");
-  const dialogoAbierto = $("help").open || $("pedir").open || $("donar").open || $("compartir").open;
+  const dialogoAbierto = $("help").open || $("pedir").open || $("donar").open || $("compartir").open || $("pasosIos").open;
   if (e.key === "Escape") {
     if (dialogoAbierto) return;
     stopAll();
@@ -888,6 +941,49 @@ function openHash() {
   card.classList.add("flash");
   card.querySelector(".play").focus({ preventScroll: true });
   toast(`Te compartieron ${s.emoji} ${s.name} — tocalo para escucharlo`);
+}
+
+/* ---------- app instalable ---------- */
+const esApp = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const esCelu = matchMedia("(pointer: coarse)").matches && Math.min(screen.width, screen.height) < 820;
+const esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const esSafariIOS = esIOS && /Safari/.test(navigator.userAgent) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA/.test(navigator.userAgent);
+let pedidoInstalar = null;   // el aviso de instalación de Android/Chrome, guardado para cuando toquen "Instalar"
+
+function mostrarInstalar() {
+  if (esApp || !esCelu || store.get("instalarCerrado", false)) return;
+  $("instalar").hidden = false;
+  document.body.classList.add("con-instalar");
+}
+function ocultarInstalar() { $("instalar").hidden = true; document.body.classList.remove("con-instalar"); }
+
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); pedidoInstalar = e; mostrarInstalar(); });
+addEventListener("appinstalled", () => { ocultarInstalar(); toast("📲 ¡Listo! La botonera ya está en tu celu"); track("instalar", { resultado: "instalada" }); });
+if (esSafariIOS) mostrarInstalar();
+
+$("instalarSi").onclick = async () => {
+  if (pedidoInstalar) {
+    pedidoInstalar.prompt();
+    const { outcome } = await pedidoInstalar.userChoice;
+    track("instalar", { resultado: outcome === "accepted" ? "aceptada" : "cancelada" });
+    if (outcome === "accepted") ocultarInstalar();
+    pedidoInstalar = null;
+  } else {
+    $("pasosIos").showModal();
+    track("instalar", { resultado: "pasos_ios" });
+  }
+};
+$("instalarNo").onclick = () => { store.set("instalarCerrado", true); ocultarInstalar(); };
+$("pasosIosOk").onclick = () => $("pasosIos").close();
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").then(() => {
+    // Instalada como app: guardar todos los audios para usarla sin internet.
+    if (!esApp) return;
+    navigator.serviceWorker.ready.then(reg => reg.active && reg.active.postMessage({
+      tipo: "guardar-audios", urls: sounds.map(s => new URL(BASE + s.file + ".mp3", location.href).href),
+    }));
+  }).catch(() => {});
 }
 
 setOverlap(overlap);
