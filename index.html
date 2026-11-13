@@ -91,14 +91,16 @@
       .bt-head .acciones .bt-pedir, .bt-head .acciones .bt-donar { flex: 1; }
     }
     /* Donaciones */
-    .bt-donaciones .metodos { display: flex; flex-direction: column; gap: 0.6em; margin-top: 1.2em; }
-    .bt-donaciones .metodos .button { margin: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5em; }
+    .bt-dialog .metodos { display: flex; flex-direction: column; gap: 0.6em; margin-top: 1.2em; }
+    .bt-dialog .metodos .button { margin: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5em; }
     .bt-donaciones .mp { background: #00b1ea; border-color: #00b1ea; color: #fff !important; }
     .bt-donaciones .mp:hover { background: #009ee3; border-color: #009ee3; color: #fff !important; }
     .bt-donaciones .pp { background: #ffc439; border-color: #ffc439; color: #253b80 !important; }
     .bt-donaciones .pp:hover { background: #f2ba36; border-color: #f2ba36; color: #253b80 !important; }
-    .bt-donaciones .cerrar { margin-top: 0.6em !important; }
-    .bt-donaciones [hidden] { display: none !important; }
+    .bt-dialog .cerrar { margin-top: 0.6em !important; }
+    .bt-dialog [hidden] { display: none !important; }
+    .bt-compartir h2 { margin-bottom: 0.2em; }
+    .bt-compartir .sonido { color: var(--heading); margin: 0; }
 
     /* Buscador + filtros */
     .bt-toolbar { position: sticky; top: 0; z-index: 5; background: #fff; padding: 0.75em 0 0.5em; margin-bottom: 0.5em; }
@@ -325,8 +327,19 @@
       <tr><td><kbd>S</kbd></td><td>Superponer sí / no</td></tr>
       <tr><td><kbd>?</kbd></td><td>Esta ayuda</td></tr>
     </table>
-    <p>Tip: con <span class="fa fa-link"></span> copiás el link directo a un sonido para mandarlo por WhatsApp o Slack.</p>
+    <p>Tip: con <span class="fa fa-share-alt"></span> compartís un sonido: copiás el link o mandás el audio (desde el celular) por WhatsApp, Telegram…</p>
     <button class="button primary" id="helpClose">Listo</button>
+  </dialog>
+
+  <dialog class="bt-dialog bt-compartir" id="compartir">
+    <h2>Compartir</h2>
+    <p class="sonido" id="compSonido"></p>
+    <div class="metodos">
+      <button class="button primary" id="compLink"><span class="fa fa-link"></span> Copiar el link</button>
+      <button class="button" id="compAudio" hidden><span class="fa fa-music"></span> Mandar el audio</button>
+      <a class="button" id="compDescargar" download hidden><span class="fa fa-download"></span> Descargar el audio</a>
+    </div>
+    <button class="button cerrar" id="compCerrar">Cancelar</button>
   </dialog>
 
   <dialog class="bt-dialog bt-donaciones" id="donar">
@@ -534,7 +547,7 @@ function cardHTML(s, keyNum) {
     </button>
     <div class="tools">
       <button class="tool fav${fav ? " on" : ""}" data-act="fav" aria-pressed="${fav}" title="${fav ? "Quitar de" : "Agregar a"} favoritos" aria-label="Favorito"><span class="fa fa-star"></span></button>
-      <button class="tool" data-act="link" title="Copiar link directo" aria-label="Copiar link"><span class="fa fa-link"></span></button>
+      <button class="tool" data-act="share" title="Compartir" aria-label="Compartir"><span class="fa fa-share-alt"></span></button>
     </div>
   </div>`;
 }
@@ -675,6 +688,65 @@ async function copyLink(slug) {
   track("compartir", { sonido: bySlug[slug].name, metodo: "link" });
 }
 
+/* ---------- compartir: elegir link o audio ---------- */
+// "Mandar el audio" usa el menú de compartir del celular (WhatsApp, Telegram…).
+// Donde no se puede (la mayoría de las compus), se ofrece descargar el mp3.
+const puedeMandarAudio = (() => {
+  try { return !!navigator.canShare && navigator.canShare({ files: [new File([""], "x.mp3", { type: "audio/mpeg" })] }); }
+  catch { return false; }
+})();
+const archivos = new Map();   // slug -> File ya descargado
+let compSlug = null;
+function nombreArchivo(s) { return s.name.replace(/[^\p{L}\p{N} ]+/gu, "").trim().replace(/\s+/g, "-") + ".mp3"; }
+async function bajarAudio(slug) {
+  if (archivos.has(slug)) return archivos.get(slug);
+  const s = bySlug[slug];
+  const blob = await (await fetch(BASE + s.file + ".mp3")).blob();
+  const file = new File([blob], nombreArchivo(s), { type: "audio/mpeg" });
+  archivos.set(slug, file);
+  return file;
+}
+function abrirCompartir(slug) {
+  const s = bySlug[slug];
+  compSlug = slug;
+  $("compSonido").textContent = s.emoji + " " + s.name;
+  $("compAudio").hidden = !puedeMandarAudio;
+  $("compDescargar").hidden = puedeMandarAudio;
+  $("compDescargar").href = BASE + s.file + ".mp3";
+  $("compDescargar").setAttribute("download", nombreArchivo(s));
+  $("compartir").showModal();
+  if (puedeMandarAudio) bajarAudio(slug).catch(() => {});   // se baja ya, así compartir es instantáneo
+}
+$("compCerrar").onclick = () => $("compartir").close();
+$("compLink").onclick = () => { const sl = compSlug; $("compartir").close(); copyLink(sl); };
+$("compDescargar").onclick = async e => {
+  e.preventDefault();
+  const sl = compSlug;
+  try {
+    const file = await bajarAudio(sl);
+    const url = URL.createObjectURL(file);
+    const a = Object.assign(document.createElement("a"), { href: url, download: file.name });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    toast("⬇️ Descargando el audio");
+  } catch { location.href = BASE + bySlug[sl].file + ".mp3"; }   // último recurso: abrir el mp3
+  $("compartir").close();
+  track("compartir", { sonido: bySlug[sl].name, metodo: "descarga" });
+};
+$("compAudio").onclick = async () => {
+  const sl = compSlug, s = bySlug[sl];
+  try {
+    const file = await bajarAudio(sl);
+    await navigator.share({ files: [file] });
+    $("compartir").close();
+    track("compartir", { sonido: s.name, metodo: "audio" });
+  } catch (e) {
+    if (e.name === "AbortError") return;                                   // cerró el menú del celular
+    if (e.name === "NotAllowedError") { toast("Listo, tocá «Mandar el audio» de nuevo"); return; }
+    toast("No se pudo mandar el audio, probá con el link");
+  }
+};
+
 function track(evento, datos) { try { gtag("event", evento, datos || {}); } catch {} }
 function random() {
   const list = visible().length ? visible() : sounds;
@@ -699,7 +771,7 @@ document.addEventListener("click", e => {
   const btn = e.target.closest("[data-act]");
   if (btn) {
     const slug = btn.closest(".card").dataset.slug;
-    ({ play, fav: toggleFav, link: copyLink })[btn.dataset.act](slug);
+    ({ play, fav: toggleFav, share: abrirCompartir })[btn.dataset.act](slug);
     return;
   }
   const chip = e.target.closest("[data-filter]");
@@ -770,7 +842,7 @@ $("pedirForm").addEventListener("submit", async e => {
 document.addEventListener("keydown", e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const typing = !!e.target.closest("input, textarea, select");
-  const dialogoAbierto = $("help").open || $("pedir").open || $("donar").open;
+  const dialogoAbierto = $("help").open || $("pedir").open || $("donar").open || $("compartir").open;
   if (e.key === "Escape") {
     if (dialogoAbierto) return;
     stopAll();

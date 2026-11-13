@@ -11,7 +11,7 @@ Sonidos para la oficina. En vivo en https://veronicapenaolivet.com/botonera/
 - ⭐ Favoritos (teclas `1`–`9`) y 🕘 últimos usados, guardados en el navegador
 - Filtros por categoría y por sonidos nuevos
 - 🎲 Sonido al azar (tecla `R`)
-- 🔗 Link directo a cada sonido, por ejemplo `#ofortuna`
+- Compartir cada sonido: copiar el link directo (`#ofortuna`) o mandar el audio desde el celular (WhatsApp, Telegram…); en la compu, descargar el mp3
 - Vibración y pulso al tocar un botón
 - Control de volumen y modo oscuro
 
