@@ -121,12 +121,17 @@ $lim[$clave][] = $ahora;
 $asunto = 'Pedido para la botonera: ' . mb_substr(una_linea($que), 0, 60);
 $tamanoTxt = $guardado ? ($tamano < 1048576 ? max(1, round($tamano / 1024)) . ' KB' : round($tamano / 1048576, 1) . ' MB') : '';
 
-// Aviso listo para mandar cuando el audio esté en la botonera.
-$saludo = $nombre !== '' ? '¡Hola ' . $nombre . '!' : '¡Hola!';
-$aviso  = $saludo . ' El audio que pediste («' . mb_substr(una_linea($que), 0, 120) . '») ya está disponible en la botonera 🎉 ' . BOTONERA_URL;
-$linkWhatsApp = 'https://wa.me/?text=' . rawurlencode($aviso);
-$linkTelegram = 'https://t.me/share/url?url=' . rawurlencode(BOTONERA_URL)
-              . '&text=' . rawurlencode(trim(str_replace(BOTONERA_URL, '', $aviso)));
+// Mensajes listos para mandar a quien pidió el audio.
+$saludo  = $nombre !== '' ? '¡Hola ' . $nombre . '!' : '¡Hola!';
+$pedido  = '«' . mb_substr(una_linea($que), 0, 120) . '»';
+$urlPedir = BOTONERA_URL . '#pedir';   // abre la botonera con el formulario de pedidos
+$avisoListo = $saludo . ' El audio que pediste (' . $pedido . ') ya está disponible en la botonera 🎉';
+$avisoNo    = $saludo . ' Busqué el audio que pediste (' . $pedido . ') pero no lo pude encontrar 😕'
+            . ' Si lo tenés, podés subirlo en el pedido de la botonera o mandármelo por acá. ¡Gracias!';
+$wa = fn(string $txt, string $url): string => 'https://wa.me/?text=' . rawurlencode($txt . ' ' . $url);
+$tg = fn(string $txt, string $url): string => 'https://t.me/share/url?url=' . rawurlencode($url) . '&text=' . rawurlencode($txt);
+$listoWA = $wa($avisoListo, BOTONERA_URL);  $listoTG = $tg($avisoListo, BOTONERA_URL);
+$noWA    = $wa($avisoNo, $urlPedir);        $noTG    = $tg($avisoNo, $urlPedir);
 
 $cuerpo = "Nuevo pedido de audio para la botonera\n"
         . "======================================\n\n"
@@ -135,9 +140,12 @@ $cuerpo = "Nuevo pedido de audio para la botonera\n"
         . "Pidió: " . ($nombre !== '' ? $nombre : 'anónimo') . "\n"
         . "Archivo: " . ($guardado ? "$original ($tamanoTxt), guardado como $guardado en $dir" : '—') . "\n\n"
         . "Fecha: " . date('d/m/Y H:i') . "\n\n"
-        . "Cuando esté en la botonera, avisale:\n"
-        . "WhatsApp: $linkWhatsApp\n"
-        . "Telegram: $linkTelegram\n";
+        . "Avisale que ya está en la botonera:\n"
+        . "WhatsApp: $listoWA\n"
+        . "Telegram: $listoTG\n\n"
+        . "Avisale que no lo encontraste (y que lo suba o te lo mande):\n"
+        . "WhatsApp: $noWA\n"
+        . "Telegram: $noTG\n";
 
 $h = fn(string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
 $fila = fn(string $k, string $v): string =>
@@ -162,10 +170,13 @@ $html = '<!doctype html><html><body style="margin:0;padding:0;background:#f4f2ee
       . $fila('Fecha', date('d/m/Y H:i'))
       . '</table>'
       . '<div style="margin-top:20px;padding-top:16px;border-top:1px solid #eee">'
-      . '<p style="margin:0 0 10px;color:#555">Cuando esté en la botonera, avisale' . ($nombre !== '' ? ' a <b>' . $h($nombre) . '</b>' : '') . ':</p>'
-      . $boton($linkWhatsApp, 'Avisar por WhatsApp', '#25d366')
-      . $boton($linkTelegram, 'Avisar por Telegram', '#2aabee')
-      . '<p style="margin:8px 0 0;color:#999;font-size:13px">Se abre con el mensaje ya escrito; solo elegís el contacto y lo mandás:<br><i>' . $h($aviso) . '</i></p>'
+      . '<p style="margin:0 0 4px;color:#555">Avisale' . ($nombre !== '' ? ' a <b>' . $h($nombre) . '</b>' : '') . ' con un mensaje ya escrito (elegís el contacto y lo mandás):</p>'
+      . '<p style="margin:14px 0 8px;color:#333;font-weight:bold">✅ Ya está en la botonera</p>'
+      . $boton($listoWA, 'WhatsApp', '#25d366') . $boton($listoTG, 'Telegram', '#2aabee')
+      . '<p style="margin:2px 0 0;color:#999;font-size:13px"><i>' . $h($avisoListo . ' ' . BOTONERA_URL) . '</i></p>'
+      . '<p style="margin:18px 0 8px;color:#333;font-weight:bold">😕 No lo encontré</p>'
+      . $boton($noWA, 'WhatsApp', '#25d366') . $boton($noTG, 'Telegram', '#2aabee')
+      . '<p style="margin:2px 0 0;color:#999;font-size:13px"><i>' . $h($avisoNo . ' ' . $urlPedir) . '</i></p>'
       . '</div></div></div></body></html>';
 
 $borde   = 'b_' . bin2hex(random_bytes(12));

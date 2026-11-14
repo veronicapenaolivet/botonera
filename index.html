@@ -941,6 +941,7 @@ document.addEventListener("keydown", e => {
 // link directo: #slug  (también acepta los viejos #botonN)
 function openHash() {
   let h = decodeURIComponent(location.hash.slice(1));
+  if (h === "pedir") { abrirPedir(); return; }   // link del aviso "no lo encontré": abre el formulario
   const m = h.match(/^boton(\d+)$/);
   if (m) { const old = SONIDOS[SONIDOS.length - +m[1]]; if (old) h = old[0].replace(/_/g, "-"); }
   const s = bySlug[h];
