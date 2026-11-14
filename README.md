@@ -24,7 +24,7 @@ Sonidos para la oficina. En vivo en https://veronicapenaolivet.com/botonera/
    ["bocina", "Bocina", "📯", "efectos", "2026-11-11"],
    ```
 
-   Los campos son: archivo sin `.mp3`, nombre del botón, emoji, categoría (`frases`, `musica` o `efectos`) y, opcionalmente, la fecha en que lo agregás. Con fecha, el botón muestra la etiqueta NUEVO durante 5 días (`DIAS_NUEVO`) y después se va sola.
+   Los campos son: archivo sin `.mp3`, nombre del botón, emoji, categoría (`frases`, `musica` o `efectos`) y, opcionalmente, la fecha en que lo agregás. Con fecha, el botón muestra la etiqueta NUEVO durante 3 días (`DIAS_NUEVO`) y después se va sola.
 
 ## Frases ocultas para el buscador
 
