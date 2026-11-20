@@ -1,7 +1,9 @@
+# Cada push a main actualiza la carpeta de este repo en Hostinger.
 name: Deploy a Hostinger
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -12,4 +14,4 @@ jobs:
           port: 65002
           username: u786237644
           key: ${{ secrets.HOSTINGER_KEY }}
-          script: cd ~/domains/veronicapenaolivet.com/public_html && git fetch origin && git reset --hard @{u}
+          script: cd ~/domains/veronicapenaolivet.com/public_html/botonera && git fetch origin main && git reset --hard origin/main
