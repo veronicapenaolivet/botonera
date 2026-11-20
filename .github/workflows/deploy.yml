@@ -14,4 +14,13 @@ jobs:
           port: 65002
           username: u786237644
           key: ${{ secrets.HOSTINGER_KEY }}
-          script: cd ~/domains/veronicapenaolivet.com/public_html/botonera && git fetch origin main && git reset --hard origin/main
+          script: |
+            set -e
+            D=~/domains/veronicapenaolivet.com/public_html/botonera
+            R=git@github.com:veronicapenaolivet/botonera.git
+            mkdir -p "$D" && cd "$D"
+            # Si la carpeta todavía no es un repo, la convierte (sin borrar nada)
+            if [ ! -d .git ]; then git init -q && git remote add origin "$R"; fi
+            git remote set-url origin "$R"
+            git fetch origin main
+            git reset --hard origin/main
