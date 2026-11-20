@@ -1,0 +1,15 @@
+name: Deploy a Hostinger
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: appleboy/ssh-action@v1
+        with:
+          host: 195.35.10.128
+          port: 65002
+          username: u786237644
+          key: ${{ secrets.HOSTINGER_KEY }}
+          script: cd ~/domains/veronicapenaolivet.com/public_html && git fetch origin && git reset --hard @{u}
