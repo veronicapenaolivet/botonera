@@ -135,6 +135,16 @@
 
     .bt h3 { font-size: 0.8em; text-transform: uppercase; letter-spacing: .1em; color: #b2b2b2; margin: 1.4em 0 0.7em; font-weight: 400; }
     .bt .empty { text-align: center; padding: 2em 0; }
+    /* Encabezado de "Todos" con el selector de orden */
+    .all-head { display: flex; align-items: center; justify-content: space-between; gap: 1em; margin: 1.4em 0 0.7em; }
+    .all-head h3 { margin: 0; }
+    .sort { display: flex; align-items: center; gap: 0.5em; margin: 0; font-size: 0.85em; font-weight: 400; color: #b2b2b2; white-space: nowrap; }
+    .bt .sort select {
+      width: auto; height: 2.3em; padding: 0 2.2em 0 0.8em; font-size: 1em; color: var(--heading);
+      background-color: var(--field); background-size: 0.9rem; background-position: calc(100% - 0.7rem) center; cursor: pointer;
+    }
+    .grid .sep { grid-column: 1 / -1; margin: 0.8em 0 0; }
+    .grid .sep:first-child { margin-top: 0; }
 
     /* Grilla de botones */
     .grid { display: grid; gap: 0.6em; grid-template-columns: repeat(auto-fill, minmax(12em, 1fr)); }
@@ -337,7 +347,16 @@
         <div class="grid" id="favGrid"></div>
       </div>
       <div>
-        <h3 id="allTitle">Todos</h3>
+        <div class="all-head">
+          <h3 id="allTitle">Todos</h3>
+          <label class="sort">Ordenar por
+            <select id="orden" aria-label="Ordenar por">
+              <option value="recientes">Más recientes</option>
+              <option value="usados">Más usados</option>
+              <option value="categoria">Categoría</option>
+            </select>
+          </label>
+        </div>
         <div class="grid" id="grid"></div>
         <p class="empty" id="empty" hidden>No encontré nada 🦗 Probá con otra palabra.</p>
       </div>
@@ -640,8 +659,8 @@ function esNuevo(fecha) {
   const dias = (Date.now() - new Date(y, m - 1, d)) / 864e5;  // fecha local, desde las 00:00
   return dias < DIAS_NUEVO;   // si la fecha es "mañana" por la zona horaria, también cuenta como nuevo
 }
-const sounds = SONIDOS.map(([file, name, emoji, cat, fecha]) => ({
-  file, name, emoji, cat, nuevo: esNuevo(fecha), slug: file.replace(/_/g, "-"),
+const sounds = SONIDOS.map(([file, name, emoji, cat, fecha], pos) => ({
+  file, name, emoji, cat, pos, fecha: fecha || "", nuevo: esNuevo(fecha), slug: file.replace(/_/g, "-"),
   search: norm([name, file, CATEGORIAS[cat], FRASES[file]].join(" ")),
 }));
 const bySlug = Object.fromEntries(sounds.map(s => [s.slug, s]));
@@ -654,6 +673,9 @@ let favs = store.get("favs", []).filter(s => bySlug[s]);
 let recents = store.get("recents", []).filter(s => bySlug[s]);
 let overlap = store.get("overlap", false);
 let volume = store.get("volume", 1);
+let usos = store.get("usos", {});            // cuántas veces tocó cada sonido esta persona
+let orden = store.get("orden", "recientes");
+if (!["recientes", "usados", "categoria"].includes(orden)) orden = "recientes";
 let filter = "todos";
 let query = "";
 
@@ -688,7 +710,19 @@ function visible() {
     if (filter === "nuevos" && !s.nuevo) return false;
     if (CATEGORIAS[filter] && s.cat !== filter) return false;
     return words.every(w => s.search.includes(w));
-  });
+  }).sort(comparar);
+}
+
+/* ---------- orden ---------- */
+const CAT_ORDEN = Object.keys(CATEGORIAS);
+function porReciente(a, b) {           // fecha más nueva primero; sin fecha, el orden de la lista
+  return b.fecha.localeCompare(a.fecha) || a.pos - b.pos;
+}
+function comparar(a, b) {
+  if (orden === "usados") return (usos[b.slug] || 0) - (usos[a.slug] || 0) || porReciente(a, b);
+  if (orden === "categoria") return CAT_ORDEN.indexOf(a.cat) - CAT_ORDEN.indexOf(b.cat)
+    || a.name.localeCompare(b.name, "es", { sensitivity: "base" });
+  return porReciente(a, b);
 }
 
 function renderChips() {
@@ -702,7 +736,12 @@ function renderChips() {
 
 function render() {
   const list = visible();
-  $("grid").innerHTML = list.map(s => cardHTML(s, favKey(s))).join("");
+  let cat = null;
+  $("grid").innerHTML = list.map(s => {
+    let sep = "";
+    if (orden === "categoria" && s.cat !== cat) { cat = s.cat; sep = `<h3 class="sep">${CATEGORIAS[cat]}</h3>`; }
+    return sep + cardHTML(s, favKey(s));
+  }).join("");
   $("empty").hidden = list.length > 0;
   const showTops = !query && filter === "todos";
   $("recentSec").hidden = !(showTops && recents.length);
@@ -763,6 +802,8 @@ function play(slug) {
   a.play().catch(err => { stop(slug); if (err.name !== "AbortError") toast("No se pudo reproducir 😕"); });
   recents = [slug, ...recents.filter(x => x !== slug)].slice(0, 8);
   store.set("recents", recents);
+  usos[slug] = (usos[slug] || 0) + 1;
+  store.set("usos", usos);
   tick();
 }
 function pause(slug) {
@@ -905,6 +946,11 @@ document.addEventListener("click", e => {
   }
   const chip = e.target.closest("[data-filter]");
   if (chip) { filter = chip.dataset.filter; render(); }
+});
+$("orden").value = orden;
+$("orden").addEventListener("change", e => {
+  orden = e.target.value; store.set("orden", orden); render();
+  track("ordenar", { orden });
 });
 let buscarT;
 $("q").addEventListener("input", e => {

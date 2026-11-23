@@ -9,6 +9,7 @@ Sonidos para la oficina. En vivo en https://veronicapenaolivet.com/botonera/
 - Opción para superponer sonidos o reproducir de a uno
 - Barra de progreso dentro de cada botón; tocar un sonido que está sonando lo pausa y otro toque lo sigue desde ahí
 - ⭐ Favoritos (teclas `1`–`9`) y 🕘 últimos usados, guardados en el navegador
+- ↕️ Ordenar por más recientes, más usados (lo que más tocó cada persona, guardado en su navegador) o categoría
 - Filtros por categoría y por sonidos nuevos
 - 🎲 Sonido al azar (tecla `R`)
 - Compartir cada sonido: copiar el link directo (`#ofortuna`) o mandar el audio desde el celular (WhatsApp, Telegram…); en la compu, descargar el mp3
@@ -60,7 +61,7 @@ El botón **Donar** abre un diálogo con Mercado Pago (https://link.mercadopago.
 
 ## Métricas (GA4)
 
-En `index.html`, pegá el ID de medición en `GA_ID` (formato `G-XXXXXXXXXX`). Eventos que se registran: `reproducir_sonido`, `search`, `compartir`, `favorito`, `pedir_audio`, `abrir_donar` y `donar`.
+En `index.html`, pegá el ID de medición en `GA_ID` (formato `G-XXXXXXXXXX`). Eventos que se registran: `reproducir_sonido`, `search`, `compartir`, `favorito`, `pedir_audio`, `abrir_donar`, `donar` y `ordenar`.
 
 ## Publicar
 
