@@ -56,6 +56,8 @@
       --text: #a2a2a2;
       --border: #efefef;
       --field: #f7f7f7;
+      --muted: #6b6b6b;      /* gris de textos secundarios: se lee bien (contraste ≥ 4,5:1) */
+      --icon: #8a8a8a;       /* gris de íconos (contraste ≥ 3:1) */
       --stop: #e06c6c;
       --star: #f2b33d;
       --radius: 0.35em;
@@ -120,7 +122,7 @@
       color: var(--heading); font: inherit; outline: 0;
     }
     .bt-search input:focus { border-color: var(--accent); }
-    .bt-search .fa-search { position: absolute; left: 0.95em; top: 50%; transform: translateY(-50%); color: #b2b2b2; }
+    .bt-search .fa-search { position: absolute; left: 0.95em; top: 50%; transform: translateY(-50%); color: var(--muted); }
     .bt-search kbd { position: absolute; right: 0.8em; top: 50%; transform: translateY(-50%); }
     .bt-chips { display: flex; gap: 0.5em; overflow-x: auto; padding: 0.7em 0 0.1em; scrollbar-width: none; }
     .bt-chips::-webkit-scrollbar { display: none; }
@@ -131,14 +133,18 @@
     }
     .chip:hover { border-color: var(--accent); color: var(--accent); }
     .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .chip .n { opacity: .7; margin-left: 0.3em; font-size: 0.85em; }
+    .chip .n { margin-left: 0.3em; font-size: 0.85em; }
 
-    .bt h3 { font-size: 0.8em; text-transform: uppercase; letter-spacing: .1em; color: #b2b2b2; margin: 1.4em 0 0.7em; font-weight: 400; }
+    .bt .name, .bt .chip, .bt-search input, .bt-donar, #overlapBtn { color: var(--muted); }
+    .bt .chip[aria-pressed="true"] { color: #fff; }
+    .bt-search input::placeholder { color: var(--muted); opacity: 1; }
+    .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+    .bt h3 { font-size: 0.8em; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 1.4em 0 0.7em; font-weight: 400; }
     .bt .empty { text-align: center; padding: 2em 0; }
     /* Encabezado de "Todos" con el selector de orden */
     .all-head { display: flex; align-items: center; justify-content: space-between; gap: 1em; margin: 1.4em 0 0.7em; }
     .all-head h3 { margin: 0; }
-    .sort { display: flex; align-items: center; gap: 0.5em; margin: 0; font-size: 0.85em; font-weight: 400; color: #b2b2b2; white-space: nowrap; }
+    .sort { display: flex; align-items: center; gap: 0.5em; margin: 0; font-size: 0.85em; font-weight: 400; color: var(--muted); white-space: nowrap; }
     .bt .sort select {
       width: auto; height: 2.3em; padding: 0 2.2em 0 0.8em; font-size: 1em; color: var(--heading);
       background-color: var(--field); background-size: 0.9rem; background-position: calc(100% - 0.7rem) center; cursor: pointer;
@@ -173,14 +179,14 @@
     .emoji { font-size: 1.45em; line-height: 1; flex: none; }
     .name { color: var(--heading); line-height: 1.25; overflow-wrap: break-word; min-width: 0; }
     .card.playing .name { color: var(--accent); }
-    .state { display: block; font-size: 0.8em; color: #b2b2b2; margin-top: 0.15em; }
+    .state { display: block; font-size: 0.8em; color: var(--muted); margin-top: 0.15em; }
     .card.playing .state, .card.paused .state { color: var(--accent); }
     .state kbd { margin-left: 0.3em; font-size: 0.85em; padding: 0 5px; }
 
     .tools { position: absolute; top: 0.15em; right: 0.15em; display: flex; flex-direction: column; }
     .tool {
       width: 1.7em; height: 1.7em; border: 0; background: none; border-radius: var(--radius); cursor: pointer;
-      display: grid; place-items: center; font-size: 0.9em; color: #d4d4d4; padding: 0;
+      display: grid; place-items: center; font-size: 0.9em; color: var(--icon); padding: 0;
     }
     .tool:hover, .tool:focus-visible { color: var(--accent); background: var(--field); }
     .tool.fav.on { color: var(--star); }
@@ -198,7 +204,7 @@
       }
       .tool {
         width: 44px; height: auto; min-height: 44px; flex: 1;
-        border-radius: 0; font-size: 16px; color: #c8c8c8;
+        border-radius: 0; font-size: 16px; color: var(--icon);
       }
       .tool + .tool { border-top: solid 1px var(--border); }
       .tool:active { background: var(--accent-soft); color: var(--accent); }
@@ -214,12 +220,12 @@
     .instalar[hidden] { display: none; }
     .instalar img { width: 2.4em; height: 2.4em; border-radius: 0.55em; flex: none; }
     .instalar .txt { flex: 1; min-width: 0; color: var(--heading); line-height: 1.25; }
-    .instalar .txt small { display: block; color: #b2b2b2; font-size: 0.85em; }
+    .instalar .txt small { display: block; color: var(--muted); font-size: 0.85em; }
     .instalar .si {
       border: 0; background: var(--accent); color: #fff !important; border-radius: var(--radius);
       padding: 0 1em; height: 2.3em; cursor: pointer; flex: none; font-weight: 600;
     }
-    .instalar .no { border: 0; background: none; color: #b2b2b2; cursor: pointer; font-size: 1.1em; padding: 0.3em; flex: none; }
+    .instalar .no { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 1.1em; padding: 0.3em; flex: none; }
 
     /* Pasos para iPhone */
     .bt-ios ol { list-style: none; margin: 1em 0 0; padding: 0; counter-reset: paso; }
@@ -232,7 +238,7 @@
     .bt-ios .ico svg { width: 1.2em; height: 1.2em; }
     .bt-ios .ico.txt-ico { width: auto; padding: 0 0.45em; font-size: 0.75em; font-weight: 700; height: 2.5em; }
     .bt-ios li .t { flex: 1; min-width: 0; line-height: 1.4; }
-    .bt-ios p.nota { font-size: 0.85em; color: #b2b2b2; margin-top: 0.9em; line-height: 1.4; }
+    .bt-ios p.nota { font-size: 0.85em; color: var(--muted); margin-top: 0.9em; line-height: 1.4; }
     .bt-bar {
       position: fixed; right: 0; bottom: 0; left: 35%; z-index: 10;
       background: rgba(255,255,255,.95); border-top: solid 2px var(--border);
@@ -246,7 +252,7 @@
       padding: 0 1.3em; height: 2.6em; cursor: pointer; flex: none; letter-spacing: .05em; transition: opacity .2s;
     }
     .stop:disabled { opacity: .35; cursor: default; }
-    .now { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #b2b2b2; }
+    .now { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
     .now b { color: var(--heading); font-weight: 400; }
     .bar-btn {
       border: solid 2px var(--border); background: #fff; border-radius: var(--radius); height: 2.6em; padding: 0 0.9em;
@@ -254,7 +260,7 @@
     }
     .bar-btn:hover { border-color: var(--accent); color: var(--accent); }
     .bar-btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-    .vol { display: flex; align-items: center; gap: 0.5em; color: #b2b2b2; flex: none; margin: 0; font-size: 1em; }
+    .vol { display: flex; align-items: center; gap: 0.5em; color: var(--muted); flex: none; margin: 0; font-size: 1em; }
     .vol input { appearance: auto; -webkit-appearance: auto; display: inline-block; width: 6em; height: auto; padding: 0; margin: 0; background: none; border: 0; accent-color: var(--accent); }
     @media screen and (max-width: 736px) {
       .bt-bar .in { padding-left: 1em; padding-right: 1em; justify-content: space-between; }
@@ -287,7 +293,7 @@
     .bt-form textarea { resize: vertical; min-height: 4.5em; }
     .bt-form input:focus, .bt-form textarea:focus { border-color: var(--accent); }
     .bt-form input[type=file] { font: inherit; font-size: 0.9em; color: var(--text); max-width: 100%; }
-    .bt-form small { display: block; color: #b2b2b2; font-size: 0.85em; margin-top: 0.2em; }
+    .bt-form small { display: block; color: var(--muted); font-size: 0.85em; margin-top: 0.2em; }
     .bt-form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
     .bt-form .form-msg { min-height: 1.4em; margin: 0.8em 0 0; font-size: 0.95em; }
     .bt-form .form-msg.error { color: var(--stop); }
@@ -466,6 +472,7 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="sr-only" id="aviso" role="status" aria-live="polite"></div>
 
   <!-- Scripts de la plantilla del sitio -->
   <script src="../assets/js/jquery.min.js"></script>
@@ -689,18 +696,25 @@ function norm(t) { return t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "
 const $ = id => document.getElementById(id);
 
 /* ---------- render ---------- */
+function attr(t) { return String(t).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
+// Lo que anuncia el lector de pantalla en cada botón
+function etiquetaPlay(s, est) {
+  const verbo = est === "sonando" ? "Pausar" : est === "pausa" ? "Seguir reproduciendo" : "Reproducir";
+  return `${verbo} ${s.name}${s.nuevo ? " (nuevo)" : ""}`;
+}
+function etiquetaFav(s, fav) { return fav ? `Quitar ${s.name} de favoritos` : `Agregar ${s.name} a favoritos`; }
 function cardHTML(s, keyNum) {
-  const fav = favs.includes(s.slug);
+  const fav = favs.includes(s.slug), est = estado(s.slug);
   return `<div class="card${playing.has(s.slug) ? " playing" : paused.has(s.slug) ? " paused" : ""}" data-slug="${s.slug}" data-cat="${s.cat}">
     <div class="prog"></div>
-    ${s.nuevo ? '<span class="badge">NUEVO</span>' : ""}
-    <button class="play" data-act="play" aria-label="Reproducir ${s.name}">
+    ${s.nuevo ? '<span class="badge" aria-hidden="true">NUEVO</span>' : ""}
+    <button class="play" data-act="play" aria-label="${attr(etiquetaPlay(s, est))}">
       <span class="emoji" aria-hidden="true">${s.emoji}</span>
-      <span class="name">${s.name}<span class="state">${stateText(s, estado(s.slug), keyNum)}</span></span>
+      <span class="name">${s.name}<span class="state">${stateText(s, est, keyNum)}</span></span>
     </button>
     <div class="tools">
-      <button class="tool fav${fav ? " on" : ""}" data-act="fav" aria-pressed="${fav}" title="${fav ? "Quitar de" : "Agregar a"} favoritos" aria-label="Favorito"><span class="fa fa-star"></span></button>
-      <button class="tool" data-act="share" title="Compartir" aria-label="Compartir"><span class="fa fa-share-alt"></span></button>
+      <button class="tool fav${fav ? " on" : ""}" data-act="fav" aria-pressed="${fav}" title="${fav ? "Quitar de" : "Agregar a"} favoritos" aria-label="${attr(etiquetaFav(s, fav))}"><span class="fa fa-star"></span></button>
+      <button class="tool" data-act="share" title="Compartir" aria-label="${attr("Compartir " + s.name)}"><span class="fa fa-share-alt"></span></button>
     </div>
   </div>`;
 }
@@ -737,6 +751,9 @@ function renderChips() {
 }
 
 function render() {
+  // si el foco estaba en un botón de una tarjeta, se devuelve al mismo botón después de redibujar
+  const act = document.activeElement, card = act && act.closest && act.closest(".card");
+  const volver = card && { grid: card.parentElement.id, slug: card.dataset.slug, act: act.dataset.act };
   const list = visible();
   let cat = null;
   $("grid").innerHTML = list.map(s => {
@@ -753,6 +770,11 @@ function render() {
   $("allTitle").textContent = query ? `Resultados (${list.length})`
     : filter === "todos" ? `Todos (${sounds.length})` : `${list.length} sonidos`;
   renderChips();
+  if (volver) {
+    const el = document.querySelector(`#${volver.grid} .card[data-slug="${volver.slug}"] [data-act="${volver.act}"]`)
+      || document.querySelector(`.card[data-slug="${volver.slug}"] [data-act="${volver.act}"]`);
+    if (el) el.focus({ preventScroll: true });
+  }
 }
 function estado(slug) { return playing.has(slug) ? "sonando" : paused.has(slug) ? "pausa" : ""; }
 function stateText(s, est, k) {
@@ -769,6 +791,7 @@ function refreshCard(slug) {
     c.classList.toggle("playing", est === "sonando");
     c.classList.toggle("paused", est === "pausa");
     c.querySelector(".state").innerHTML = stateText(s, est, favKey(s));
+    c.querySelector(".play").setAttribute("aria-label", etiquetaPlay(s, est));
     if (!est) c.style.setProperty("--p", 0);
   });
 }
@@ -791,7 +814,7 @@ function play(slug) {
   if (!a) {
     a = new Audio(BASE + s.file + ".mp3");
     a.preload = "auto";
-    a.addEventListener("ended", () => stop(slug));
+    a.addEventListener("ended", () => { stop(slug); avisar(`Terminó ${s.name}`); });
     audios.set(slug, a);
   }
   a.volume = volume;
@@ -808,9 +831,13 @@ function play(slug) {
   store.set("usos", usos);
   tick();
 }
+function avisar(t) {        // solo para lectores de pantalla
+  const el = $("aviso"); el.textContent = ""; setTimeout(() => { el.textContent = t; }, 50);
+}
 function pause(slug) {
   const a = audios.get(slug);
   if (a) a.pause();
+  avisar(`${bySlug[slug].name} en pausa`);
   playing.delete(slug); paused.add(slug);
   refreshCard(slug); refreshBar();
 }
